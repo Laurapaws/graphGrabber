@@ -28,6 +28,7 @@ cropDict = {
 }
 
 extractedImages = []
+croppedImages = []
 
 def searchReplace(search_str, repl_str, input, output):
     prs = Presentation(input)
@@ -54,45 +55,36 @@ def extractImages(PDFName, image_folder):
         print('Converting PDFs to Image ... ')
 
 def cropGraph(targetImg, cropTuple, imName):
-    targetPIL = targetImg.getImageData("PNG")
+    targetPIL = targetImg.tobytes("PNG")
     im = Image.open(io.BytesIO(targetPIL))
     im1 = im.crop(box=cropTuple)
-    #im1.show() #Don't need to show unless for testing
-    imName = 'testFolder/' + imName + '.png'
-    im1.save(imName)
-    print('Cropped and saved: ' + imName)
+    croppedImages.append(im1)
+    #imName = 'testFolder/' + imName + '.png'
+    #im1.save(imName)
+    #print('Cropped and saved: ' + imName)
 
 def insertImage(oldFileName, newFileName, img, positionTuple, slideNumber):
     #Be sure to call HALF the size you really want for the image. PowerPoint will auto resize
     prs = Presentation(oldFileName)
     slide = prs.slides[slideNumber]
-    img = 'testFolder/' + img
+    # img = 'testFolder/' + img
     left = positionTuple[0]
     top = positionTuple[1]
     width = positionTuple[2]
     height = positionTuple[3]
-    slide.shapes.add_picture(img, left, top, width, height)
+    with io.BytesIO() as output:
+        image.save(output, format="PNG")
+        slide.shapes.add_picture(output, left, top, width, height)
     prs.save(newFileName)
-    print(img + ' pasted into ' + newFileName)
-    os.remove(img)
-    print(img + ' deleted')
+    #print(img + ' pasted into ' + newFileName)
+    #os.remove(img)
+    #print(img + ' deleted')
 
 def initialisePowerPoint(emptyDeckName, newDeckName):
     emptyDeckName = emptyDeckName + '.pptx'
     newDeckName = newDeckName + '.pptx'
     prs = Presentation(emptyDeckName)
     prs.save(newDeckName)
-
-def dirtyCleanup(folderName):
-    print('Deleting PDF Images')
-    os.remove(folderName + '/0.png')
-    os.remove(folderName + '/1.png')
-    os.remove(folderName + '/2.png')
-    os.remove(folderName + '/3.png')
-    os.remove(folderName + '/4.png')
-    os.remove(folderName + '/5.png')
-    os.remove(folderName + '/6.png')
-    print('Finished Deleting')
 
 def VT07(PDFName, folderName, slideNumber, deckName):
     extractImages(PDFName, folderName)
@@ -104,13 +96,13 @@ def VT07(PDFName, folderName, slideNumber, deckName):
     cropGraph(extractedImages[3], cropDict['lowerOld'], 'DAB2AV')
     cropGraph(extractedImages[4], cropDict['upperOld'], 'DAB2RMS')
     deckName = deckName + '.pptx'
-    insertImage(deckName, deckName,'MW.png', posDict['VT07MW'], slideNumber)
-    insertImage(deckName, deckName,'FM1.png', posDict['VT07FM1'], slideNumber) 
-    insertImage(deckName, deckName,'FM2.png', posDict['VT07FM2'], slideNumber) 
-    insertImage(deckName, deckName,'DAB1AV.png', posDict['VT07DAB1AV'], slideNumber) 
-    insertImage(deckName, deckName,'DAB1RMS.png', posDict['VT07DAB1RMS'], slideNumber) 
-    insertImage(deckName, deckName,'DAB2AV.png', posDict['VT07DAB2AV'], slideNumber) 
-    insertImage(deckName, deckName,'DAB2RMS.png', posDict['VT07DAB2RMS'], slideNumber)
+    insertImage(deckName, deckName, croppedImages[0], posDict['VT07MW'], slideNumber)
+    insertImage(deckName, deckName, croppedImages[1], posDict['VT07FM1'], slideNumber) 
+    insertImage(deckName, deckName, croppedImages[2], posDict['VT07FM2'], slideNumber) 
+    insertImage(deckName, deckName, croppedImages[3], posDict['VT07DAB1AV'], slideNumber) 
+    insertImage(deckName, deckName, croppedImages[4], posDict['VT07DAB1RMS'], slideNumber) 
+    insertImage(deckName, deckName, croppedImages[5], posDict['VT07DAB2AV'], slideNumber) 
+    insertImage(deckName, deckName, croppedImages[6], posDict['VT07DAB2RMS'], slideNumber)
     extractedImages.clear()
     print('Finished VT07 for ' + PDFName)
 
