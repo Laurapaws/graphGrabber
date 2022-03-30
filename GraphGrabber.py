@@ -7,6 +7,7 @@ from PIL import Image
 from pptx import Presentation
 from pptx.util import Pt
 import os
+import io
 
 
 posDict = {
@@ -25,6 +26,8 @@ cropDict = {
     'upperOld' : ((130, 138, 1000, 800)),
     'lowerOld' : ((130, 820, 1000, 1482))
 }
+
+extractedImages = []
 
 def searchReplace(search_str, repl_str, input, output):
     prs = Presentation(input)
@@ -47,12 +50,12 @@ def extractImages(PDFName, image_folder):
     for pageNo in range(noOfPages):
         page = doc.load_page(pageNo) #number of page
         pix = page.get_pixmap(matrix = mat)
-        output = image_folder + '/' + str(pageNo) + '.png'
-        pix.save(output)
-        print('Converting PDFs to Image ... ' + output)
+        extractedImages.append(pix)
+        print('Converting PDFs to Image ... ')
 
-def cropGraph(imPath, cropTuple, imName):
-    im = Image.open(imPath)
+def cropGraph(targetImg, cropTuple, imName):
+    targetPIL = targetImg.getImageData("PNG")
+    im = Image.open(io.BytesIO(targetPIL))
     im1 = im.crop(box=cropTuple)
     #im1.show() #Don't need to show unless for testing
     imName = 'testFolder/' + imName + '.png'
@@ -93,18 +96,13 @@ def dirtyCleanup(folderName):
 
 def VT07(PDFName, folderName, slideNumber, deckName):
     extractImages(PDFName, folderName)
-    PNG1 = folderName + "/1.png"
-    PNG2 = folderName + "/2.png"
-    PNG3 = folderName + "/3.png"
-    PNG4 = folderName + "/4.png"
-    cropGraph(PNG1, cropDict['upperOld'], 'MW')
-    cropGraph(PNG1, cropDict['lowerOld'], 'FM1')
-    cropGraph(PNG2, cropDict['upperOld'], 'FM2')
-    cropGraph(PNG2, cropDict['lowerOld'], 'DAB1AV')
-    cropGraph(PNG3, cropDict['upperOld'], 'DAB1RMS')
-    cropGraph(PNG3, cropDict['lowerOld'], 'DAB2AV')
-    cropGraph(PNG4, cropDict['upperOld'], 'DAB2RMS')
-    dirtyCleanup(folderName)
+    cropGraph(extractedImages[1], cropDict['upperOld'], 'MW')
+    cropGraph(extractedImages[1], cropDict['lowerOld'], 'FM1')
+    cropGraph(extractedImages[2], cropDict['upperOld'], 'FM2')
+    cropGraph(extractedImages[2], cropDict['lowerOld'], 'DAB1AV')
+    cropGraph(extractedImages[3], cropDict['upperOld'], 'DAB1RMS')
+    cropGraph(extractedImages[3], cropDict['lowerOld'], 'DAB2AV')
+    cropGraph(extractedImages[4], cropDict['upperOld'], 'DAB2RMS')
     deckName = deckName + '.pptx'
     insertImage(deckName, deckName,'MW.png', posDict['VT07MW'], slideNumber)
     insertImage(deckName, deckName,'FM1.png', posDict['VT07FM1'], slideNumber) 
@@ -113,6 +111,7 @@ def VT07(PDFName, folderName, slideNumber, deckName):
     insertImage(deckName, deckName,'DAB1RMS.png', posDict['VT07DAB1RMS'], slideNumber) 
     insertImage(deckName, deckName,'DAB2AV.png', posDict['VT07DAB2AV'], slideNumber) 
     insertImage(deckName, deckName,'DAB2RMS.png', posDict['VT07DAB2RMS'], slideNumber)
+    extractedImages.clear()
     print('Finished VT07 for ' + PDFName)
 
 def loopFolder(folderName, deckName):
