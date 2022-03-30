@@ -8,11 +8,9 @@ from pptx import Presentation
 from pptx.util import Pt
 import os
 
-# Define coordinates for cropping 
-cropUpperTupleOLD = (130, 138, 1000, 800)
-cropLowerTupleOLD = (130, 820, 1000, 1482)
 
 posDict = {
+    # Define coordinates for positioning. Format is test name then test type. e.g. a VT-07 test with a mediumwave plot 
     'VT07MW' : (Pt(1), Pt(70), Pt(233), Pt(176)),
     'VT07FM1' : (Pt(239), Pt(70), Pt(233), Pt(176)),
     'VT07FM2' : (Pt(477), Pt(70), Pt(233), Pt(176)),
@@ -23,6 +21,7 @@ posDict = {
 }
 
 cropDict = {
+    # Define coordinates for cropping. Old refers to the old style PDFs we use that crop in two static positions
     'upperOld' : ((130, 138, 1000, 800)),
     'lowerOld' : ((130, 820, 1000, 1482))
 }
@@ -69,7 +68,7 @@ def insertImage(oldFileName, newFileName, img, positionTuple, slideNumber):
     top = positionTuple[1]
     width = positionTuple[2]
     height = positionTuple[3]
-    pic = slide.shapes.add_picture(img, left, top, width, height)
+    slide.shapes.add_picture(img, left, top, width, height)
     prs.save(newFileName)
     print(img + ' pasted into ' + newFileName)
     os.remove(img)
