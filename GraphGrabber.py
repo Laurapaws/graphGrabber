@@ -8,6 +8,8 @@ from pptx import Presentation
 from pptx.util import Pt
 import os
 import io
+from io import BytesIO
+import tempfile
 
 
 posDict = {
@@ -72,13 +74,10 @@ def insertImage(oldFileName, newFileName, img, positionTuple, slideNumber):
     top = positionTuple[1]
     width = positionTuple[2]
     height = positionTuple[3]
-    with io.BytesIO() as output:
-        image.save(output, format="PNG")
-        slide.shapes.add_picture(output, left, top, width, height)
+    temp = BytesIO()
+    img.save(temp, "PNG")
+    slide.shapes.add_picture(temp, left, top, width, height)
     prs.save(newFileName)
-    #print(img + ' pasted into ' + newFileName)
-    #os.remove(img)
-    #print(img + ' deleted')
 
 def initialisePowerPoint(emptyDeckName, newDeckName):
     emptyDeckName = emptyDeckName + '.pptx'
@@ -104,6 +103,7 @@ def VT07(PDFName, folderName, slideNumber, deckName):
     insertImage(deckName, deckName, croppedImages[5], posDict['VT07DAB2AV'], slideNumber) 
     insertImage(deckName, deckName, croppedImages[6], posDict['VT07DAB2RMS'], slideNumber)
     extractedImages.clear()
+    croppedImages.clear()
     print('Finished VT07 for ' + PDFName)
 
 def loopFolder(folderName, deckName):
