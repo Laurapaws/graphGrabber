@@ -8,8 +8,26 @@ from pptx import Presentation
 from pptx.util import Pt
 import os
 
+# Define coordinates for cropping 
+cropUpperTupleOLD = (130, 138, 1000, 800)
+cropLowerTupleOLD = (130, 820, 1000, 1482)
 
-def search_and_replace(search_str, repl_str, input, output):
+posDict = {
+    'VT07MW' : (Pt(1), Pt(70), Pt(233), Pt(176)),
+    'VT07FM1' : (Pt(239), Pt(70), Pt(233), Pt(176)),
+    'VT07FM2' : (Pt(477), Pt(70), Pt(233), Pt(176)),
+    'VT07DAB1AV' : (Pt(1), Pt(275), Pt(175), Pt(130)),
+    'VT07DAB1RMS' : (Pt(180), Pt(275), Pt(175), Pt(130)),
+    'VT07DAB2AV' : (Pt(360), Pt(275), Pt(175), Pt(130)),
+    'VT07DAB2RMS' : (Pt(540), Pt(275), Pt(175), Pt(130))
+}
+
+cropDict = {
+    'upperOld' : ((130, 138, 1000, 800)),
+    'lowerOld' : ((130, 820, 1000, 1482))
+}
+
+def searchReplace(search_str, repl_str, input, output):
     prs = Presentation(input)
     for slide in prs.slides:
         for shape in slide.shapes:
@@ -34,20 +52,23 @@ def extractImages(PDFName, image_folder):
         pix.save(output)
         print('Converting PDFs to Image ... ' + output)
 
-def cropGraph(imPath, left, top, right, bottom, imName):
-
+def cropGraph(imPath, cropTuple, imName):
     im = Image.open(imPath)
-    im1 = im.crop((left, top, right, bottom))
+    im1 = im.crop(box=cropTuple)
     #im1.show() #Don't need to show unless for testing
     imName = 'testFolder/' + imName + '.png'
     im1.save(imName)
     print('Cropped and saved: ' + imName)
 
-def insertImage(oldFileName, newFileName, img, left, top, width, height, slideNumber):
+def insertImage(oldFileName, newFileName, img, positionTuple, slideNumber):
     #Be sure to call HALF the size you really want for the image. PowerPoint will auto resize
     prs = Presentation(oldFileName)
     slide = prs.slides[slideNumber]
     img = 'testFolder/' + img
+    left = positionTuple[0]
+    top = positionTuple[1]
+    width = positionTuple[2]
+    height = positionTuple[3]
     pic = slide.shapes.add_picture(img, left, top, width, height)
     prs.save(newFileName)
     print(img + ' pasted into ' + newFileName)
@@ -77,22 +98,22 @@ def VT07(PDFName, folderName, slideNumber, deckName):
     PNG2 = folderName + "/2.png"
     PNG3 = folderName + "/3.png"
     PNG4 = folderName + "/4.png"
-    cropGraph(PNG1, 130, 138, 1000, 800, 'MW')
-    cropGraph(PNG1, 130, 820, 1000, 1482, 'FM1')
-    cropGraph(PNG2, 130, 138, 1000, 800, 'FM2')
-    cropGraph(PNG2, 130, 820, 1000, 1482, 'DAB1AV')
-    cropGraph(PNG3, 130, 138, 1000, 800, 'DAB1RMS')
-    cropGraph(PNG3, 130, 820, 1000, 1482, 'DAB2AV')
-    cropGraph(PNG4, 130, 138, 1000, 800, 'DAB2RMS')
+    cropGraph(PNG1, cropDict['upperOld'], 'MW')
+    cropGraph(PNG1, cropDict['lowerOld'], 'FM1')
+    cropGraph(PNG2, cropDict['upperOld'], 'FM2')
+    cropGraph(PNG2, cropDict['lowerOld'], 'DAB1AV')
+    cropGraph(PNG3, cropDict['upperOld'], 'DAB1RMS')
+    cropGraph(PNG3, cropDict['lowerOld'], 'DAB2AV')
+    cropGraph(PNG4, cropDict['upperOld'], 'DAB2RMS')
     dirtyCleanup(folderName)
     deckName = deckName + '.pptx'
-    insertImage(deckName ,deckName,'MW.png',Pt(1),Pt(70), Pt(233), Pt(176), slideNumber)
-    insertImage(deckName ,deckName,'FM1.png',Pt(239),Pt(70), Pt(233), Pt(176), slideNumber) 
-    insertImage(deckName ,deckName,'FM2.png',Pt(477),Pt(70), Pt(233), Pt(176), slideNumber) 
-    insertImage(deckName ,deckName,'DAB1AV.png',Pt(1),Pt(275), Pt(175), Pt(130), slideNumber) 
-    insertImage(deckName ,deckName,'DAB1RMS.png',Pt(180),Pt(275), Pt(175), Pt(130), slideNumber) 
-    insertImage(deckName ,deckName,'DAB2AV.png',Pt(360),Pt(275), Pt(175), Pt(130), slideNumber) 
-    insertImage(deckName ,deckName,'DAB2RMS.png',Pt(540),Pt(275), Pt(175), Pt(130), slideNumber)
+    insertImage(deckName, deckName,'MW.png', posDict['VT07MW'], slideNumber)
+    insertImage(deckName, deckName,'FM1.png', posDict['VT07FM1'], slideNumber) 
+    insertImage(deckName, deckName,'FM2.png', posDict['VT07FM2'], slideNumber) 
+    insertImage(deckName, deckName,'DAB1AV.png', posDict['VT07DAB1AV'], slideNumber) 
+    insertImage(deckName, deckName,'DAB1RMS.png', posDict['VT07DAB1RMS'], slideNumber) 
+    insertImage(deckName, deckName,'DAB2AV.png', posDict['VT07DAB2AV'], slideNumber) 
+    insertImage(deckName, deckName,'DAB2RMS.png', posDict['VT07DAB2RMS'], slideNumber)
     print('Finished VT07 for ' + PDFName)
 
 def loopFolder(folderName, deckName):
@@ -107,7 +128,7 @@ def loopFolder(folderName, deckName):
             replaceString = str(file)[:-4]
             replaceString = replaceString + ' - VT-07 On-Board Emissions'
             print(replaceString)
-            search_and_replace(searchString, replaceString, deckName + '.pptx', deckName + '.pptx')
+            searchReplace(searchString, replaceString, deckName + '.pptx', deckName + '.pptx')
             slideCounter = slideCounter + 1
 
 loopFolder('testFolder','newDeck')
