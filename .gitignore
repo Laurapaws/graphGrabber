@@ -1,3 +1,8 @@
+*.pdf
+*.Pdf
+*.PDF
+*.pDF
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
