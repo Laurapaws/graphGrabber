@@ -32,6 +32,7 @@ cropDict = {
 extractedImages = []
 croppedImages = []
 
+
 def searchReplace(search_str, repl_str, input, output):
     prs = Presentation(input)
     for slide in prs.slides:
@@ -43,6 +44,7 @@ def searchReplace(search_str, repl_str, input, output):
                     new_text = cur_text.replace(str(search_str), str(repl_str))
                     text_frame.paragraphs[0].runs[0].text = new_text
     prs.save(output)
+
 
 def extractImages(PDFName, image_folder):
     fileName = image_folder + '/' + PDFName
@@ -56,20 +58,17 @@ def extractImages(PDFName, image_folder):
         extractedImages.append(pix)
         print('Converting PDFs to Image ... ')
 
+
 def cropGraph(targetImg, cropTuple, imName):
     targetPIL = targetImg.tobytes("PNG")
     im = Image.open(io.BytesIO(targetPIL))
     im1 = im.crop(box=cropTuple)
     croppedImages.append(im1)
-    #imName = 'testFolder/' + imName + '.png'
-    #im1.save(imName)
-    #print('Cropped and saved: ' + imName)
+
 
 def insertImage(oldFileName, newFileName, img, positionTuple, slideNumber):
-    #Be sure to call HALF the size you really want for the image. PowerPoint will auto resize
     prs = Presentation(oldFileName)
     slide = prs.slides[slideNumber]
-    # img = 'testFolder/' + img
     left = positionTuple[0]
     top = positionTuple[1]
     width = positionTuple[2]
@@ -79,11 +78,13 @@ def insertImage(oldFileName, newFileName, img, positionTuple, slideNumber):
     slide.shapes.add_picture(temp, left, top, width, height)
     prs.save(newFileName)
 
+
 def initialisePowerPoint(emptyDeckName, newDeckName):
     emptyDeckName = emptyDeckName + '.pptx'
     newDeckName = newDeckName + '.pptx'
     prs = Presentation(emptyDeckName)
     prs.save(newDeckName)
+
 
 def VT07(PDFName, folderName, slideNumber, deckName):
     extractImages(PDFName, folderName)
