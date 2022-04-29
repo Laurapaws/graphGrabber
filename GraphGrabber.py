@@ -31,8 +31,8 @@ cropDict = {
 
 nameDict = {
     # Define names of functions and maps them to their name written on the slide
-    'VT01-10m' : 'VT-01 Off-Board Emissions 10m',
-    'VT01-3m' : 'VT-01 Off-Board Emissions 3m',
+    'VT01Ten' : 'VT-01 Off-Board Emissions 10m',
+    'VT01Three' : 'VT-01 Off-Board Emissions 3m',
     'VT07' : 'VT-07 On-Board Emissions',
     'VT-12' : 'VT-12 Conducted Emissions',
     'VT-15' : 'VT-15 ElctricField'
@@ -57,6 +57,7 @@ def searchReplace(search_str, repl_str, input, output):
                     new_text = cur_text.replace(str(search_str), str(repl_str))
                     text_frame.paragraphs[0].runs[0].text = new_text
     prs.save(output)
+    print(search_str + ' replaced with ' + repl_str)
 
 
 def extractImages(PDFName, image_folder):
@@ -125,10 +126,21 @@ def VT07(PDFName, folderName, slideNumber, deckName):
     croppedImages.clear()
     print('Finished VT07 for ' + PDFName)
 
+def VT01Three(PDFName, folderName, slideNumber, deckName):
+    extractImages(PDFName, folderName)
+    cropGraph(extractedImages[1], cropDict['upperOld'], 'MW')
+    deckName = deckName + '.pptx'
+    insertImage(deckName, deckName, croppedImages[0], posDict['VT07MW'], slideNumber)
+    extractedImages.clear()
+    croppedImages.clear()
+    print('Finished VT01 3m for ' + PDFName)
+
+
 def setSlideCounter(num):
     global slideCounter
     slideCounter = num
     print('Slide counter set to ' + str(slideCounter))
+
 
 def loopFolder(folderName, deckName, reportFunction):
 
@@ -147,5 +159,5 @@ def loopFolder(folderName, deckName, reportFunction):
 
 initialisePowerPoint('emptyDeck', 'newDeck')
 setSlideCounter(0)
-loopFolder('testFolder','newDeck', VT07)
+loopFolder('testFolder','newDeck', VT01Three)
 print('Finished all jobs...')
