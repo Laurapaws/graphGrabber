@@ -29,11 +29,24 @@ cropDict = {
     'lowerOld' : ((130, 820, 1000, 1482))
 }
 
+nameDict = {
+    # Define names of functions and maps them to their name written on the slide
+    'VT01-10m' : 'VT-01 Off-Board Emissions 10m',
+    'VT01-3m' : 'VT-01 Off-Board Emissions 3m',
+    'VT07' : 'VT-07 On-Board Emissions',
+    'VT-12' : 'VT-12 Conducted Emissions',
+    'VT-15' : 'VT-15 ElctricField'
+}
+
+# Defining global variables
 extractedImages = []
 croppedImages = []
+rejectedList = []
+slideCounter = 0
 
 
 def searchReplace(search_str, repl_str, input, output):
+    # Attempts to search and replace on the entire file. Likely needs rewriting to be more robust and not need a template
     prs = Presentation(input)
     for slide in prs.slides:
         for shape in slide.shapes:
@@ -56,7 +69,7 @@ def extractImages(PDFName, image_folder):
         page = doc.load_page(pageNo) #number of page
         pix = page.get_pixmap(matrix = mat)
         extractedImages.append(pix)
-        print('Converting PDFs to Image ... ')
+        print('Converting PDFs to Image')
 
 
 def cropGraph(targetImg, cropTuple, imName):
@@ -64,9 +77,11 @@ def cropGraph(targetImg, cropTuple, imName):
     im = Image.open(io.BytesIO(targetPIL))
     im1 = im.crop(box=cropTuple)
     croppedImages.append(im1)
+    print('Graph cropped')
 
 
 def insertImage(oldFileName, newFileName, img, positionTuple, slideNumber):
+    # Inserts an image from the croppedImages array into slideNumber using a position from posDict
     prs = Presentation(oldFileName)
     slide = prs.slides[slideNumber]
     left = positionTuple[0]
@@ -77,13 +92,16 @@ def insertImage(oldFileName, newFileName, img, positionTuple, slideNumber):
     img.save(temp, "PNG")
     slide.shapes.add_picture(temp, left, top, width, height)
     prs.save(newFileName)
+    print('Image inserted')
 
 
 def initialisePowerPoint(emptyDeckName, newDeckName):
+    # Sets up the empty, fresh PPTX file
     emptyDeckName = emptyDeckName + '.pptx'
     newDeckName = newDeckName + '.pptx'
     prs = Presentation(emptyDeckName)
     prs.save(newDeckName)
+    print('Created new PowerPoint: ' + newDeckName)
 
 
 def VT07(PDFName, folderName, slideNumber, deckName):
@@ -107,21 +125,27 @@ def VT07(PDFName, folderName, slideNumber, deckName):
     croppedImages.clear()
     print('Finished VT07 for ' + PDFName)
 
-def loopFolder(folderName, deckName):
-    initialisePowerPoint('emptyDeck', deckName)
+def setSlideCounter(num):
+    global slideCounter
+    slideCounter = num
+    print('Slide counter set to ' + str(slideCounter))
+
+def loopFolder(folderName, deckName, reportFunction):
+
     directory = 'testFolder'
-    slideCounter = 0
+    global slideCounter
+    
     for file in os.listdir(directory):
         if file.endswith(".Pdf") or file.endswith(".pdf"):
             print('Working on slide ' + str(slideCounter) + ', File Name: ' + file)
-            VT07(file, folderName, slideCounter, deckName)
+            reportFunction(file, folderName, slideCounter, deckName)
             searchString = '*' + str(slideCounter) + '*'
-            replaceString = str(file)[:-4]
-            replaceString = replaceString + ' - VT-07 On-Board Emissions'
-            print(replaceString)
+            replaceString = str(file)[:-4] + ' - ' + (nameDict[str(reportFunction.__name__)])
             searchReplace(searchString, replaceString, deckName + '.pptx', deckName + '.pptx')
             slideCounter = slideCounter + 1
 
-loopFolder('testFolder','newDeck')
 
+initialisePowerPoint('emptyDeck', 'newDeck')
+setSlideCounter(0)
+loopFolder('testFolder','newDeck', VT07)
 print('Finished all jobs...')
