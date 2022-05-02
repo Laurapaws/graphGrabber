@@ -13,14 +13,18 @@ import tempfile
 
 
 posDict = {
-    # Define coordinates for positioning. Format is test name then test type. e.g. a VT-07 test with a mediumwave plot 
+    # Define coordinates for positioning. Format is test name then test type. e.g. a VT-07 test with a mediumwave plot
+    # Tuple Order: Left , Top, Width, Height
+    #VT07
     'VT07MW' : (Pt(1), Pt(70), Pt(233), Pt(176)),
     'VT07FM1' : (Pt(239), Pt(70), Pt(233), Pt(176)),
     'VT07FM2' : (Pt(477), Pt(70), Pt(233), Pt(176)),
     'VT07DAB1AV' : (Pt(1), Pt(275), Pt(175), Pt(130)),
     'VT07DAB1RMS' : (Pt(180), Pt(275), Pt(175), Pt(130)),
     'VT07DAB2AV' : (Pt(360), Pt(275), Pt(175), Pt(130)),
-    'VT07DAB2RMS' : (Pt(540), Pt(275), Pt(175), Pt(130))
+    'VT07DAB2RMS' : (Pt(540), Pt(275), Pt(175), Pt(130)),
+    #VT01 3 Metre
+    'VT01' : (Pt(1), Pt(70), Pt(233), Pt(176))
 }
 
 cropDict = {
@@ -31,11 +35,11 @@ cropDict = {
 
 nameDict = {
     # Define names of functions and maps them to their name written on the slide
-    'VT01Ten' : 'VT-01 Off-Board Emissions 10m',
-    'VT01Three' : 'VT-01 Off-Board Emissions 3m',
+    'VT01Ten' : 'VT-01 Off-Board Emissions (10m)',
+    'VT01Three' : 'VT-01 Off-Board Emissions (3m)',
     'VT07' : 'VT-07 On-Board Emissions',
     'VT-12' : 'VT-12 Conducted Emissions',
-    'VT-15' : 'VT-15 ElctricField'
+    'VT-15' : 'VT-15 ElectricField'
 }
 
 # Defining global variables
@@ -78,7 +82,7 @@ def cropGraph(targetImg, cropTuple, imName):
     im = Image.open(io.BytesIO(targetPIL))
     im1 = im.crop(box=cropTuple)
     croppedImages.append(im1)
-    print('Graph cropped')
+    print(imName +  ' cropped')
 
 
 def insertImage(oldFileName, newFileName, img, positionTuple, slideNumber):
@@ -152,9 +156,10 @@ def loopFolder(folderName, deckName, reportFunction):
             print('Working on slide ' + str(slideCounter) + ', File Name: ' + file)
             reportFunction(file, folderName, slideCounter, deckName)
             searchString = '*' + str(slideCounter) + '*'
-            replaceString = str(file)[:-4] + ' - ' + (nameDict[str(reportFunction.__name__)])
+            replaceString = str(file)[:-4] + ' | ' + (nameDict[str(reportFunction.__name__)])
             searchReplace(searchString, replaceString, deckName + '.pptx', deckName + '.pptx')
             slideCounter = slideCounter + 1
+    print('Finished with folder: ' + folderName)
 
 
 initialisePowerPoint('emptyDeck', 'newDeck')
