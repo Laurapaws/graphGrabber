@@ -24,7 +24,7 @@ posDict = {
     'VT07DAB2AV' : (Pt(360), Pt(275), Pt(175), Pt(130)),
     'VT07DAB2RMS' : (Pt(540), Pt(275), Pt(175), Pt(130)),
     #VT01 3 Metre
-    'VT01' : (Pt(1), Pt(70), Pt(233), Pt(176))
+    'VT01Vertical' : (Pt(1), Pt(70), Pt(233), Pt(176))
 }
 
 cropDict = {
@@ -34,12 +34,13 @@ cropDict = {
 }
 
 nameDict = {
-    # Define names of functions and maps them to their name written on the slide
+    # Takes names of functions and writes their proper name onto the slide
     'VT01Ten' : 'VT-01 Off-Board Emissions (10m)',
     'VT01Three' : 'VT-01 Off-Board Emissions (3m)',
     'VT07' : 'VT-07 On-Board Emissions',
-    'VT-12' : 'VT-12 Conducted Emissions',
-    'VT-15' : 'VT-15 ElectricField'
+    'VT-12Single' : 'VT-12 Conducted Emissions (Single Phase)',
+    'VT-12Triple' : 'VT-12 Conducted Emissions (Three Phase)',
+    'VT-15' : 'VT-15 E & H Fields'
 }
 
 # Defining global variables
@@ -130,9 +131,10 @@ def VT07(PDFName, folderName, slideNumber, deckName):
     croppedImages.clear()
     print('Finished VT07 for ' + PDFName)
 
+
 def VT01Three(PDFName, folderName, slideNumber, deckName):
     extractImages(PDFName, folderName)
-    cropGraph(extractedImages[1], cropDict['upperOld'], 'MW')
+    cropGraph(extractedImages[1], cropDict['upperOld'], 'VT01Vertical')
     deckName = deckName + '.pptx'
     insertImage(deckName, deckName, croppedImages[0], posDict['VT07MW'], slideNumber)
     extractedImages.clear()
@@ -162,7 +164,13 @@ def loopFolder(folderName, deckName, reportFunction):
     print('Finished with folder: ' + folderName)
 
 
+
+
+
 initialisePowerPoint('emptyDeck', 'newDeck')
+
 setSlideCounter(0)
+
 loopFolder('testFolder','newDeck', VT01Three)
+
 print('Finished all jobs...')
