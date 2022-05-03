@@ -252,11 +252,11 @@ initialisePowerPoint('emptyDeck', 'newDeck')
 
 setSlideCounter(0)
 
-#loopFolder('VT-01 3m','newDeck', VT01Three)
-#loopFolder('VT-07','newDeck', VT07)
-#loopFolder('VT-12 Single Phase', 'newDeck', VT12Single)
-#loopFolder('VT-12 Three Phase', 'newDeck', VT12Triple)
-#loopFolder('VT-15 Electric', 'newDeck', VT15Electric)
+loopFolder('VT-01 3m','newDeck', VT01Three)
+loopFolder('VT-07','newDeck', VT07)
+loopFolder('VT-12 Single Phase', 'newDeck', VT12Single)
+loopFolder('VT-12 Three Phase', 'newDeck', VT12Triple)
+loopFolder('VT-15 Electric', 'newDeck', VT15Electric)
 loopFolder('VT-15 Magnetic', 'newDeck', VT15Magnetic)
 
 print('Finished all jobs...')
