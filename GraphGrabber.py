@@ -9,7 +9,6 @@ from pptx.util import Pt
 import os
 import io
 from io import BytesIO
-import tempfile
 
 
 posDict = {
@@ -24,7 +23,8 @@ posDict = {
     'VT07DAB2AV' : (Pt(360), Pt(275), Pt(175), Pt(130)),
     'VT07DAB2RMS' : (Pt(540), Pt(275), Pt(175), Pt(130)),
     #VT01 3 Metre
-    'VT01Vertical' : (Pt(1), Pt(70), Pt(233), Pt(176))
+    'VT01ThreeVertical' : (Pt(1), Pt(85), Pt(358), Pt(270)),
+    'VT01ThreeHorizontal' : (Pt(360), Pt(85), Pt(358), Pt(270))
 }
 
 cropDict = {
@@ -134,9 +134,11 @@ def VT07(PDFName, folderName, slideNumber, deckName):
 
 def VT01Three(PDFName, folderName, slideNumber, deckName):
     extractImages(PDFName, folderName)
-    cropGraph(extractedImages[1], cropDict['upperOld'], 'VT01Vertical')
+    cropGraph(extractedImages[1], cropDict['upperOld'], 'VT01ThreeVertical')
+    cropGraph(extractedImages[1], cropDict['lowerOld'], 'VT01ThreeHorizontal')
     deckName = deckName + '.pptx'
-    insertImage(deckName, deckName, croppedImages[0], posDict['VT07MW'], slideNumber)
+    insertImage(deckName, deckName, croppedImages[0], posDict['VT01ThreeVertical'], slideNumber)
+    insertImage(deckName, deckName, croppedImages[1], posDict['VT01ThreeHorizontal'], slideNumber)
     extractedImages.clear()
     croppedImages.clear()
     print('Finished VT01 3m for ' + PDFName)
@@ -150,7 +152,7 @@ def setSlideCounter(num):
 
 def loopFolder(folderName, deckName, reportFunction):
 
-    directory = 'testFolder'
+    directory = folderName
     global slideCounter
     
     for file in os.listdir(directory):
@@ -171,6 +173,8 @@ initialisePowerPoint('emptyDeck', 'newDeck')
 
 setSlideCounter(0)
 
-loopFolder('testFolder','newDeck', VT01Three)
+loopFolder('VT-01 3m','newDeck', VT01Three)
+
+loopFolder('VT-07','newDeck', VT07)
 
 print('Finished all jobs...')
