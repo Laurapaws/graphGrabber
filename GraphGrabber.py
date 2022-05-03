@@ -14,7 +14,7 @@ from io import BytesIO
 posDict = {
     # Define coordinates for positioning. Format is test name then test type. e.g. a VT-07 test with a mediumwave plot
     # Tuple Order: Left , Top, Width, Height
-    #VT07
+    # VT07
     'VT07MW' : (Pt(1), Pt(70), Pt(233), Pt(176)),
     'VT07FM1' : (Pt(239), Pt(70), Pt(233), Pt(176)),
     'VT07FM2' : (Pt(477), Pt(70), Pt(233), Pt(176)),
@@ -22,9 +22,17 @@ posDict = {
     'VT07DAB1RMS' : (Pt(180), Pt(275), Pt(175), Pt(130)),
     'VT07DAB2AV' : (Pt(360), Pt(275), Pt(175), Pt(130)),
     'VT07DAB2RMS' : (Pt(540), Pt(275), Pt(175), Pt(130)),
-    #VT01 3 Metre
+    # VT01 3 Metre
     'VT01ThreeVertical' : (Pt(1), Pt(85), Pt(358), Pt(270)),
-    'VT01ThreeHorizontal' : (Pt(360), Pt(85), Pt(358), Pt(270))
+    'VT01ThreeHorizontal' : (Pt(360), Pt(85), Pt(358), Pt(270)),
+    # VT12 Single Phase
+    'VT12SingleL1' : (Pt(1), Pt(85), Pt(358), Pt(270)),
+    'VT12SingleN' : (Pt(360), Pt(85), Pt(358), Pt(270)),
+    # VT12 Three Phase
+    'VT12TripleL1' : (Pt(1), Pt(65), Pt(221), Pt(167)),
+    'VT12TripleL2' : (Pt(222), Pt(65), Pt(221), Pt(167)),
+    'VT12TripleL3' : (Pt(1), Pt(240), Pt(221), Pt(167)),
+    'VT12TripleN' : (Pt(222), Pt(240), Pt(221), Pt(167)),
 }
 
 cropDict = {
@@ -38,9 +46,9 @@ nameDict = {
     'VT01Ten' : 'VT-01 Off-Board Emissions (10m)',
     'VT01Three' : 'VT-01 Off-Board Emissions (3m)',
     'VT07' : 'VT-07 On-Board Emissions',
-    'VT-12Single' : 'VT-12 Conducted Emissions (Single Phase)',
-    'VT-12Triple' : 'VT-12 Conducted Emissions (Three Phase)',
-    'VT-15' : 'VT-15 E & H Fields'
+    'VT12Single' : 'VT-12 Conducted Emissions (Single Phase)',
+    'VT12Triple' : 'VT-12 Conducted Emissions (Three Phase)',
+    'VT15' : 'VT-15 E & H Fields'
 }
 
 # Defining global variables
@@ -129,7 +137,7 @@ def VT07(PDFName, folderName, slideNumber, deckName):
     insertImage(deckName, deckName, croppedImages[6], posDict['VT07DAB2RMS'], slideNumber)
     extractedImages.clear()
     croppedImages.clear()
-    print('Finished VT07 for ' + PDFName)
+    print('Finished VT-07 for ' + PDFName)
 
 
 def VT01Three(PDFName, folderName, slideNumber, deckName):
@@ -141,7 +149,33 @@ def VT01Three(PDFName, folderName, slideNumber, deckName):
     insertImage(deckName, deckName, croppedImages[1], posDict['VT01ThreeHorizontal'], slideNumber)
     extractedImages.clear()
     croppedImages.clear()
-    print('Finished VT01 3m for ' + PDFName)
+    print('Finished VT-01 3m for ' + PDFName)
+
+def VT12Single(PDFName, folderName, slideNumber, deckName):
+    extractImages(PDFName, folderName)
+    cropGraph(extractedImages[1], cropDict['upperOld'], 'VT12SingleL1')
+    cropGraph(extractedImages[1], cropDict['lowerOld'], 'VT12SingleN')
+    deckName = deckName + '.pptx'
+    insertImage(deckName, deckName, croppedImages[0], posDict['VT12SingleL1'], slideNumber)
+    insertImage(deckName, deckName, croppedImages[1], posDict['VT12SingleN'], slideNumber)
+    extractedImages.clear()
+    croppedImages.clear()
+    print('Finished VT-12 Single Phase for ' + PDFName)
+
+def VT12Triple(PDFName, folderName, slideNumber, deckName):
+    extractImages(PDFName, folderName)
+    cropGraph(extractedImages[1], cropDict['upperOld'], 'VT12TripleL1')
+    cropGraph(extractedImages[1], cropDict['lowerOld'], 'VT12TripleL2')
+    cropGraph(extractedImages[2], cropDict['upperOld'], 'VT12TripleL3')
+    cropGraph(extractedImages[2], cropDict['lowerOld'], 'VT12TripleN')
+    deckName = deckName + '.pptx'
+    insertImage(deckName, deckName, croppedImages[0], posDict['VT12TripleL1'], slideNumber)
+    insertImage(deckName, deckName, croppedImages[1], posDict['VT12TripleL2'], slideNumber)
+    insertImage(deckName, deckName, croppedImages[2], posDict['VT12TripleL3'], slideNumber)
+    insertImage(deckName, deckName, croppedImages[3], posDict['VT12TripleN'], slideNumber)
+    extractedImages.clear()
+    croppedImages.clear()
+    print('Finished VT-12 Three Phase for ' + PDFName)
 
 
 def setSlideCounter(num):
@@ -173,8 +207,13 @@ initialisePowerPoint('emptyDeck', 'newDeck')
 
 setSlideCounter(0)
 
-loopFolder('VT-01 3m','newDeck', VT01Three)
+#loopFolder('VT-01 3m','newDeck', VT01Three)
 
-loopFolder('VT-07','newDeck', VT07)
+#loopFolder('VT-07','newDeck', VT07)
+
+#loopFolder('VT-12 Single Phase', 'newDeck', VT12Single)
+
+loopFolder('VT-12 Three Phase', 'newDeck', VT12Triple)
+
 
 print('Finished all jobs...')
