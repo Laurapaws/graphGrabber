@@ -1,4 +1,4 @@
-from cgitb import text
+from cgitb import handler, text
 from email.mime import image
 from fileinput import filename
 from re import search
@@ -9,6 +9,10 @@ from pptx.util import Pt
 import os
 import io
 from io import BytesIO
+import tkinter as tk
+from tkinter import ttk
+from tkinter import * 
+import logging
 
 
 posDict = {
@@ -228,7 +232,6 @@ def setSlideCounter(num):
     slideCounter = num
     print('Slide counter set to ' + str(slideCounter))
 
-
 def loopFolder(folderName, deckName, reportFunction):
 
     directory = folderName
@@ -248,15 +251,169 @@ def loopFolder(folderName, deckName, reportFunction):
 
 
 
-initialisePowerPoint('emptyDeck', 'newDeck')
+#initialisePowerPoint('emptyDeck', 'newDeck')
 
-setSlideCounter(0)
+#setSlideCounter(0)
 
-loopFolder('VT-01 3m','newDeck', VT01Three)
-loopFolder('VT-07','newDeck', VT07)
-loopFolder('VT-12 Single Phase', 'newDeck', VT12Single)
-loopFolder('VT-12 Three Phase', 'newDeck', VT12Triple)
-loopFolder('VT-15 Electric', 'newDeck', VT15Electric)
-loopFolder('VT-15 Magnetic', 'newDeck', VT15Magnetic)
+#loopFolder('VT-01 3m','newDeck', VT01Three)
+#loopFolder('VT-07','newDeck', VT07)
+#loopFolder('VT-12 Single Phase', 'newDeck', VT12Single)
+#loopFolder('VT-12 Three Phase', 'newDeck', VT12Triple)
+#loopFolder('VT-15 Electric', 'newDeck', VT15Electric)
+#loopFolder('VT-15 Magnetic', 'newDeck', VT15Magnetic)
+
+
+
+
+# this is a function to get the selected list box value
+def getListboxValue():
+	itemSelected = fileList.curselection()
+	return itemSelected
+
+# this is the function called when the button is clicked
+def btnInitialisePowerPoint():
+	print('Init PP clicked')
+
+
+# this is the function called when the button is clicked
+def btnInitialiseFolders():
+	print('Init folders clicked')
+
+
+# this is the function called when the button is clicked
+def btnClearFolders():
+	print('Clear Folders Clicked')
+
+
+# this is the function called when the button is clicked
+def btnVisitFolders():
+	print('Visit directory....')
+
+
+# this is a function to get the user input from the text input box
+def getInputBoxValue():
+	userInput = outputName.get()
+	return userInput
+
+
+# this is the function called when the button is clicked
+def btnCheckFiles():
+	print('Checking Files and inserting into list')
+
+
+# this is the function called when the button is clicked
+def btnGO():
+	print('STARTING JOBS')
+
+
+# This is a function which increases the progress bar value by the given increment amount
+def makeProgress():
+	progessBar['value']=progessBar['value'] + 1
+	root.update_idletasks()
+
+
+# this is a function to get the selected list box value
+def getListboxValue():
+	itemSelected = fileList.curselection()
+	return itemSelected
+
+
+
+root = Tk()
+
+# This is the section of code which creates the main window
+root.geometry('850x460')
+root.configure(background='#C1CDCD')
+root.title('Graph Grabber')
+
+# Init PP Button
+Button(root, text='Initialise PowerPoint', bg='#F0FFFF', font=('courier', 14, 'normal'), command=btnInitialisePowerPoint).place(x=39, y=40)
+
+# Init Folders Button
+Button(root, text='Initialise Folder Structure', bg='#F0FFFF', font=('courier', 14, 'normal'), command=btnInitialiseFolders).place(x=39, y=86)
+
+# Clear Folders Button
+Button(root, text='Clear Folders', fg='#FF8247', font=('courier', 16, 'normal'), command=btnClearFolders).place(x=39, y=136)
+
+# Directory Label
+Label(root, text='Working Directory', bg='#C1CDCD', font=('courier', 12, 'normal')).place(x=39, y=175)
+
+# Go to Directory Button
+Button(root, text='Go To Folder', fg='#6495ED', font=('courier', 16, 'normal'), command=btnVisitFolders).place(x=39, y=236)
+
+#Text(root, font=('courier', 11, 'normal')).place(x=39, y=290)
+
+# Entry Label
+Label(root, text='Output File Name', bg='#C1CDCD', font=('courier', 14, 'normal')).place(x=39, y=350)
+
+# Entry Box
+outputName=Entry(root, width=35, relief = tk.FLAT)
+outputName.place(x=39, y=375)
+
+
+#Check Files Button
+Button(root, text='Check Files', fg='#6495ED', font=('courier', 16, 'normal'), command=btnCheckFiles).place(x=450, y=378)
+
+#Create Deck Button
+Button(root, text='Create Deck!', fg='#00CD00', font=('courier', 16, 'normal'), command=btnGO).place(x=600, y=378)
+
+# Progress Bar
+progessBar_style = ttk.Style()
+progessBar_style.theme_use('clam')
+progessBar_style.configure('progessBar.Horizontal.TProgressbar', foreground='#00CD00', background='#00CD00')
+progessBar=ttk.Progressbar(root, style='progessBar.Horizontal.TProgressbar', orient='horizontal', length=750, mode='determinate', maximum=100, value=1)
+progessBar.place(x=55, y=425)
+
+# File List Title
+Label(root, text='File List', bg='#C1CDCD', font=('courier', 14, 'normal')).place(x=300, y=16)
+
+# File List
+fileList=Listbox(root, bg='#F0FFFF', font=('courier', 11, 'normal'), width=70, height=24)
+fileList.insert('0', 'catfish ----- GOOD')
+fileList.insert('1', 'cake --- GOOD')
+fileList.insert('2', 'avacado --- GOOD')
+fileList.insert('3', 'chocolate --- GOOD')
+fileList.insert('4', 'falafel')
+fileList.insert('5', 'kabobs')
+fileList.insert('6', 'jerky')
+fileList.insert('7', 'chicken')
+fileList.insert('8', 'antelope')
+fileList.insert('9', 'dumplings')
+fileList.insert('10', 'chimichanga')
+fileList.insert('11', 'Venison')
+fileList.insert('12', 'broccoli')
+fileList.insert('13', 'babaganoosh')
+fileList.insert('14', 'Wine')
+fileList.insert('15', '----------LINE BREAK--------')
+fileList.insert('16', 'bisqu --- GOOD')
+fileList.insert('17', 'curry ----- GOOD')
+fileList.insert('18', 'Lasagna ----- FAILED: Too many pages')
+fileList.insert('19', 'honey ----- GOOD')
+fileList.insert('20', 'bisque ----- GOOD')
+fileList.insert('21', 'curry ----- GOOD')
+fileList.insert('22', 'Lasagna ----- GOOD')
+fileList.insert('23', 'honey')
+fileList.insert('24', 'bisque')
+fileList.insert('25', 'curry')
+fileList.insert('26', 'Lasagna')
+fileList.insert('27', 'honey')
+fileList.insert('28', 'bisque')
+fileList.insert('29', 'curry')
+fileList.insert('30', 'Lasagna')
+fileList.insert('31', 'honey')
+fileList.insert('32', 'bisque')
+fileList.insert('33', 'curry')
+fileList.insert('34', 'Lasagna')
+fileList.place(x=300, y=40)
+
+
+
+root.mainloop()
+
+
+
+
+
+
 
 print('Finished all jobs...')
