@@ -3,7 +3,7 @@ from email.mime import image
 from fileinput import filename
 from re import search
 import fitz
-from PIL import Image
+import PIL.Image
 from pptx import Presentation
 from pptx.util import Pt
 import os
@@ -106,7 +106,7 @@ def extractImages(PDFName, image_folder):
 
 def cropGraph(targetImg, cropTuple, imName):
     targetPIL = targetImg.tobytes("PNG")
-    im = Image.open(io.BytesIO(targetPIL))
+    im = PIL.Image.open(io.BytesIO(targetPIL))
     im1 = im.crop(box=cropTuple)
     croppedImages.append(im1)
     print(imName +  ' cropped')
@@ -251,16 +251,16 @@ def loopFolder(folderName, deckName, reportFunction):
 
 
 
-#initialisePowerPoint('emptyDeck', 'newDeck')
+initialisePowerPoint('emptyDeck', 'newDeck')
 
-#setSlideCounter(0)
+setSlideCounter(0)
 
-#loopFolder('VT-01 3m','newDeck', VT01Three)
+loopFolder('VT-01 3m','newDeck', VT01Three)
 #loopFolder('VT-07','newDeck', VT07)
-#loopFolder('VT-12 Single Phase', 'newDeck', VT12Single)
+loopFolder('VT-12 Single Phase', 'newDeck', VT12Single)
 #loopFolder('VT-12 Three Phase', 'newDeck', VT12Triple)
-#loopFolder('VT-15 Electric', 'newDeck', VT15Electric)
-#loopFolder('VT-15 Magnetic', 'newDeck', VT15Magnetic)
+loopFolder('VT-15 Electric', 'newDeck', VT15Electric)
+loopFolder('VT-15 Magnetic', 'newDeck', VT15Magnetic)
 
 
 
