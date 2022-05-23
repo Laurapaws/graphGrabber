@@ -239,15 +239,27 @@ def loopFolder(folderName, deckName, reportFunction):
 
     directory = folderName
     global slideCounter
-    
+    global listCounter
+    listCounter = listCounter + 1
     for file in os.listdir(directory):
         if file.endswith(".Pdf") or file.endswith(".pdf"):
+            statusMessage = file + ' | No Status'
             print('Working on slide ' + str(slideCounter) + ', File Name: ' + file)
-            reportFunction(file, folderName, slideCounter, deckName)
-            searchString = '*' + str(slideCounter) + '*'
-            replaceString = str(file)[:-4] + ' | ' + (nameDict[str(reportFunction.__name__)])
-            searchReplace(searchString, replaceString, deckName + '.pptx', deckName + '.pptx')
-            slideCounter = slideCounter + 1
+            try:
+                reportFunction(file, folderName, slideCounter, deckName)
+                searchString = '*' + str(slideCounter) + '*'
+                replaceString = str(file)[:-4] + ' | ' + (nameDict[str(reportFunction.__name__)])
+                searchReplace(searchString, replaceString, deckName + '.pptx', deckName + '.pptx')
+                slideCounter = slideCounter + 1
+                statusMessage = file + ' | Added to Deck'
+            except:
+                statusMessage = file + ' | ERROR'
+            fileList.delete(listCounter)
+            fileList.insert(listCounter, statusMessage)   
+            listCounter = listCounter + 1
+            makeProgress()
+
+
     print('Finished with folder: ' + folderName)
 
 
@@ -330,6 +342,8 @@ def btnCheckFiles():
     loopInsertList('VT-12 Three Phase')
     loopInsertList('VT-15 Electric')
     loopInsertList('VT-15 Magnetic')
+    progessBar['maximum']=listCounter-6
+
 
 
 
@@ -339,7 +353,17 @@ def btnCheckFiles():
 
 
 def btnGO():
-	print('STARTING JOBS')
+    print('STARTING JOBS')
+    setSlideCounter(0)
+    global listCounter
+    listCounter = 0
+    loopFolder('VT-01 3m','newDeck', VT01Three)
+    loopFolder('VT-07','newDeck', VT07)
+    loopFolder('VT-12 Single Phase', 'newDeck', VT12Single)
+    loopFolder('VT-12 Three Phase', 'newDeck', VT12Triple)
+    loopFolder('VT-15 Electric', 'newDeck', VT15Electric)
+    loopFolder('VT-15 Magnetic', 'newDeck', VT15Magnetic)
+
 
 
 
@@ -398,8 +422,9 @@ Button(root, text='Create Deck!', fg='#00CD00', font=('courier', 15, 'normal'), 
 progessBar_style = ttk.Style()
 progessBar_style.theme_use('clam')
 progessBar_style.configure('progessBar.Horizontal.TProgressbar', foreground='#00CD00', background='#00CD00')
-progessBar=ttk.Progressbar(root, style='progessBar.Horizontal.TProgressbar', orient='horizontal', length=750, mode='determinate', maximum=100, value=1)
+progessBar=ttk.Progressbar(root, style='progessBar.Horizontal.TProgressbar', orient='horizontal', length=750, mode='determinate', maximum=100, value=0)
 progessBar.place(x=55, y=425)
+
 
 # File List Title
 Label(root, text='File List', bg='#C1CDCD', font=('courier', 14, 'normal')).place(x=375, y=16)
