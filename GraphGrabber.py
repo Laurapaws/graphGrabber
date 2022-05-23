@@ -251,9 +251,9 @@ def loopFolder(folderName, deckName, reportFunction):
                 replaceString = str(file)[:-4] + ' | ' + (nameDict[str(reportFunction.__name__)])
                 searchReplace(searchString, replaceString, deckName + '.pptx', deckName + '.pptx')
                 slideCounter = slideCounter + 1
-                statusMessage = file + ' | Added to Deck'
+                statusMessage = '*' + file + ' | Added to Deck'
             except:
-                statusMessage = file + ' | ERROR'
+                statusMessage = '*' + file + ' | ERROR'
             fileList.delete(listCounter)
             fileList.insert(listCounter, statusMessage)   
             listCounter = listCounter + 1
