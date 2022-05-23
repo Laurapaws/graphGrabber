@@ -1,7 +1,9 @@
 from cgitb import handler, text
 from email.mime import image
 from fileinput import filename
+from msilib.schema import ListBox
 from re import search
+from unittest import TextTestResult
 import fitz
 import PIL.Image
 from pptx import Presentation
@@ -74,6 +76,7 @@ extractedImages = []
 croppedImages = []
 rejectedList = []
 slideCounter = 0
+listCounter = 0
 
 
 def searchReplace(search_str, repl_str, input, output):
@@ -251,16 +254,16 @@ def loopFolder(folderName, deckName, reportFunction):
 
 
 
-initialisePowerPoint('emptyDeck', 'newDeck')
+#initialisePowerPoint('emptyDeck', 'newDeck')
 
-setSlideCounter(0)
+#setSlideCounter(0)
 
-loopFolder('VT-01 3m','newDeck', VT01Three)
+#loopFolder('VT-01 3m','newDeck', VT01Three)
 #loopFolder('VT-07','newDeck', VT07)
-loopFolder('VT-12 Single Phase', 'newDeck', VT12Single)
+#loopFolder('VT-12 Single Phase', 'newDeck', VT12Single)
 #loopFolder('VT-12 Three Phase', 'newDeck', VT12Triple)
-loopFolder('VT-15 Electric', 'newDeck', VT15Electric)
-loopFolder('VT-15 Magnetic', 'newDeck', VT15Magnetic)
+#loopFolder('VT-15 Electric', 'newDeck', VT15Electric)
+#loopFolder('VT-15 Magnetic', 'newDeck', VT15Magnetic)
 
 
 
@@ -270,22 +273,23 @@ def getListboxValue():
 	itemSelected = fileList.curselection()
 	return itemSelected
 
-# this is the function called when the button is clicked
 def btnInitialisePowerPoint():
-	print('Init PP clicked')
+    print('Init PP clicked')
+    initialisePowerPoint('emptyDeck', 'newDeck')
+ 
+    
 
 
-# this is the function called when the button is clicked
 def btnInitialiseFolders():
 	print('Init folders clicked')
 
 
-# this is the function called when the button is clicked
+
 def btnClearFolders():
 	print('Clear Folders Clicked')
 
 
-# this is the function called when the button is clicked
+
 def btnVisitFolders():
 	print('Visit directory....')
 
@@ -296,14 +300,47 @@ def getInputBoxValue():
 	return userInput
 
 
-# this is the function called when the button is clicked
 def btnCheckFiles():
-	print('Checking Files and inserting into list')
+    print('Checking Files and inserting into list')
+
+    global listCounter
+    def loopInsertList(dir):
+        global listCounter
+        
+        sectionBreak = '*********** ' + dir + ' *********** '
+        fileList.insert(listCounter, sectionBreak)
+        listCounter = listCounter + 1
+        localCounter = 0
+        for file in os.listdir(dir):
+            if file.endswith(".Pdf") or file.endswith(".pdf"):
+                fileList.insert(listCounter, file)
+                localCounter = localCounter + 1
+                listCounter = listCounter + 1
+            
+        headerPos = listCounter-localCounter-1
+        sectionBreak = sectionBreak + '(' + str(localCounter) + ' files)'
+        fileList.delete(headerPos)
+        fileList.insert(headerPos, sectionBreak)    
+
+    fileList.delete(0, tk.END)
+    listCounter = 0
+    loopInsertList('VT-01 3m')
+    loopInsertList('VT-07')
+    loopInsertList('VT-12 Single Phase')
+    loopInsertList('VT-12 Three Phase')
+    loopInsertList('VT-15 Electric')
+    loopInsertList('VT-15 Magnetic')
 
 
-# this is the function called when the button is clicked
+
+
+    
+
+
+
 def btnGO():
 	print('STARTING JOBS')
+
 
 
 # This is a function which increases the progress bar value by the given increment amount
@@ -333,29 +370,29 @@ Button(root, text='Initialise PowerPoint', bg='#F0FFFF', font=('courier', 14, 'n
 Button(root, text='Initialise Folder Structure', bg='#F0FFFF', font=('courier', 14, 'normal'), command=btnInitialiseFolders).place(x=39, y=86)
 
 # Clear Folders Button
-Button(root, text='Clear Folders', fg='#FF8247', font=('courier', 16, 'normal'), command=btnClearFolders).place(x=39, y=136)
+Button(root, text='Clear Folders', fg='#FF8247', font=('courier', 15, 'normal'), command=btnClearFolders).place(x=39, y=136)
 
 # Directory Label
 Label(root, text='Working Directory', bg='#C1CDCD', font=('courier', 12, 'normal')).place(x=39, y=175)
 
 # Go to Directory Button
-Button(root, text='Go To Folder', fg='#6495ED', font=('courier', 16, 'normal'), command=btnVisitFolders).place(x=39, y=236)
+Button(root, text='Go To Folder', fg='#6495ED', font=('courier', 15, 'normal'), command=btnVisitFolders).place(x=39, y=215)
 
 #Text(root, font=('courier', 11, 'normal')).place(x=39, y=290)
 
 # Entry Label
-Label(root, text='Output File Name', bg='#C1CDCD', font=('courier', 14, 'normal')).place(x=39, y=350)
+Label(root, text='Output File Name', bg='#C1CDCD', font=('courier', 14, 'normal')).place(x=39, y=275)
 
 # Entry Box
 outputName=Entry(root, width=35, relief = tk.FLAT)
-outputName.place(x=39, y=375)
+outputName.place(x=39, y=300)
 
 
 #Check Files Button
-Button(root, text='Check Files', fg='#6495ED', font=('courier', 16, 'normal'), command=btnCheckFiles).place(x=450, y=378)
+Button(root, text='Check Files', fg='#6495ED', font=('courier', 15, 'normal'), command=btnCheckFiles).place(x=39, y=330)
 
 #Create Deck Button
-Button(root, text='Create Deck!', fg='#00CD00', font=('courier', 16, 'normal'), command=btnGO).place(x=600, y=378)
+Button(root, text='Create Deck!', fg='#00CD00', font=('courier', 15, 'normal'), command=btnGO).place(x=39, y=380)
 
 # Progress Bar
 progessBar_style = ttk.Style()
@@ -365,46 +402,11 @@ progessBar=ttk.Progressbar(root, style='progessBar.Horizontal.TProgressbar', ori
 progessBar.place(x=55, y=425)
 
 # File List Title
-Label(root, text='File List', bg='#C1CDCD', font=('courier', 14, 'normal')).place(x=300, y=16)
+Label(root, text='File List', bg='#C1CDCD', font=('courier', 14, 'normal')).place(x=375, y=16)
 
 # File List
-fileList=Listbox(root, bg='#F0FFFF', font=('courier', 11, 'normal'), width=70, height=24)
-fileList.insert('0', 'catfish ----- GOOD')
-fileList.insert('1', 'cake --- GOOD')
-fileList.insert('2', 'avacado --- GOOD')
-fileList.insert('3', 'chocolate --- GOOD')
-fileList.insert('4', 'falafel')
-fileList.insert('5', 'kabobs')
-fileList.insert('6', 'jerky')
-fileList.insert('7', 'chicken')
-fileList.insert('8', 'antelope')
-fileList.insert('9', 'dumplings')
-fileList.insert('10', 'chimichanga')
-fileList.insert('11', 'Venison')
-fileList.insert('12', 'broccoli')
-fileList.insert('13', 'babaganoosh')
-fileList.insert('14', 'Wine')
-fileList.insert('15', '----------LINE BREAK--------')
-fileList.insert('16', 'bisqu --- GOOD')
-fileList.insert('17', 'curry ----- GOOD')
-fileList.insert('18', 'Lasagna ----- FAILED: Too many pages')
-fileList.insert('19', 'honey ----- GOOD')
-fileList.insert('20', 'bisque ----- GOOD')
-fileList.insert('21', 'curry ----- GOOD')
-fileList.insert('22', 'Lasagna ----- GOOD')
-fileList.insert('23', 'honey')
-fileList.insert('24', 'bisque')
-fileList.insert('25', 'curry')
-fileList.insert('26', 'Lasagna')
-fileList.insert('27', 'honey')
-fileList.insert('28', 'bisque')
-fileList.insert('29', 'curry')
-fileList.insert('30', 'Lasagna')
-fileList.insert('31', 'honey')
-fileList.insert('32', 'bisque')
-fileList.insert('33', 'curry')
-fileList.insert('34', 'Lasagna')
-fileList.place(x=300, y=40)
+fileList=Listbox(root, bg='#F0FFFF', font=('courier', 10, 'normal'), width=55, height=22)
+fileList.place(x=375, y=40)
 
 
 
