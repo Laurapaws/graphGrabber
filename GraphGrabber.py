@@ -1,8 +1,9 @@
 from cgitb import handler, text
 from email.mime import image
 from fileinput import filename
-from msilib.schema import ListBox
+#from msilib.schema import ListBox
 from re import search
+from turtle import left
 from unittest import TextTestResult
 import fitz
 import PIL.Image
@@ -14,7 +15,12 @@ from io import BytesIO
 import tkinter as tk
 from tkinter import ttk
 from tkinter import * 
-import logging
+import platform
+import subprocess
+import glob
+
+from requests import delete
+
 
 
 posDict = {
@@ -77,6 +83,7 @@ croppedImages = []
 rejectedList = []
 slideCounter = 0
 listCounter = 0
+cwd = os.getcwd()
 
 
 def searchReplace(search_str, repl_str, input, output):
@@ -251,7 +258,7 @@ def loopFolder(folderName, deckName, reportFunction):
                 replaceString = str(file)[:-4] + ' | ' + (nameDict[str(reportFunction.__name__)])
                 searchReplace(searchString, replaceString, deckName + '.pptx', deckName + '.pptx')
                 slideCounter = slideCounter + 1
-                statusMessage = file + ' | Added to Deck'
+                statusMessage = file + ' | Added to slide ' + str(slideCounter)
             except:
                 statusMessage = file + ' | ERROR'
             fileList.delete(listCounter)
@@ -261,22 +268,6 @@ def loopFolder(folderName, deckName, reportFunction):
 
 
     print('Finished with folder: ' + folderName)
-
-
-
-
-
-#initialisePowerPoint('emptyDeck', 'newDeck')
-
-#setSlideCounter(0)
-
-#loopFolder('VT-01 3m','newDeck', VT01Three)
-#loopFolder('VT-07','newDeck', VT07)
-#loopFolder('VT-12 Single Phase', 'newDeck', VT12Single)
-#loopFolder('VT-12 Three Phase', 'newDeck', VT12Triple)
-#loopFolder('VT-15 Electric', 'newDeck', VT15Electric)
-#loopFolder('VT-15 Magnetic', 'newDeck', VT15Magnetic)
-
 
 
 
@@ -293,17 +284,48 @@ def btnInitialisePowerPoint():
 
 
 def btnInitialiseFolders():
-	print('Init folders clicked')
+    print('Init folders clicked')
+    os.mkdir('VT-01 3m')
+    os.mkdir('VT-07')
+    os.mkdir('VT-12 Single Phase')
+    os.mkdir('VT-12 Three Phase')
+    os.mkdir('VT-15 Electric')
+    os.mkdir('VT-15 Magnetic')
+
 
 
 
 def btnClearFolders():
-	print('Clear Folders Clicked')
+    print('Beginning file deletion..')
+
+    def deleteInFolder(dir):
+        dir = dir + '/*'
+        files = glob.glob(dir)
+        for f in files:
+            os.remove(f)
+            print('DELETED ' + str(f))
+
+    deleteInFolder('VT-01 3m')
+    deleteInFolder('VT-07')
+    deleteInFolder('VT-12 Single Phase')
+    deleteInFolder('VT-12 Three Phase')
+    deleteInFolder('VT-15 Electric')
+    deleteInFolder('VT-15 Magnetic')
+    btnCheckFiles()
+
 
 
 
 def btnVisitFolders():
-	print('Visit directory....')
+    path = os.getcwd()
+    print('Visiting working directory: ' + path)
+    if platform.system() == "Windows":
+        os.startfile(path)
+    elif platform.system() == "Darwin":
+        subprocess.Popen(["open", path])
+    else:
+        subprocess.Popen(["xdg-open", path])
+
 
 
 # this is a function to get the user input from the text input box
@@ -313,7 +335,7 @@ def getInputBoxValue():
 
 
 def btnCheckFiles():
-    print('Checking Files and inserting into list')
+    print('Checking Files and displaying to user')
 
     global listCounter
     def loopInsertList(dir):
@@ -344,11 +366,6 @@ def btnCheckFiles():
     loopInsertList('VT-15 Magnetic')
     progessBar['maximum']=listCounter-6
 
-
-
-
-
-    
 
 
 
@@ -397,12 +414,10 @@ Button(root, text='Initialise Folder Structure', bg='#F0FFFF', font=('courier', 
 Button(root, text='Clear Folders', fg='#FF8247', font=('courier', 15, 'normal'), command=btnClearFolders).place(x=39, y=136)
 
 # Directory Label
-Label(root, text='Working Directory', bg='#C1CDCD', font=('courier', 12, 'normal')).place(x=39, y=175)
+Label(root, text=cwd, bg='#C1CDCD', wraplength=400, justify='left', font=('courier', 8, 'normal')).place(x=20, y=175)
 
 # Go to Directory Button
-Button(root, text='Go To Folder', fg='#6495ED', font=('courier', 15, 'normal'), command=btnVisitFolders).place(x=39, y=215)
-
-#Text(root, font=('courier', 11, 'normal')).place(x=39, y=290)
+Button(root, text='Open Working Directory', fg='#6495ED', font=('courier', 15, 'normal'), command=btnVisitFolders).place(x=39, y=215)
 
 # Entry Label
 Label(root, text='Output File Name', bg='#C1CDCD', font=('courier', 14, 'normal')).place(x=39, y=275)
