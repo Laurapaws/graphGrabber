@@ -14,7 +14,7 @@ import os
 import io
 from io import BytesIO
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, filedialog
 from tkinter import *
 import platform
 import subprocess
@@ -416,6 +416,11 @@ def btnGO():
     loopFolder("VT-15 Electric", "newDeck", VT15Electric)
     loopFolder("VT-15 Magnetic", "newDeck", VT15Magnetic)
 
+def btnAutoSort():
+    print('Auto Sort Clicked')
+    open_file = filedialog.askdirectory() # Returns opened path as str
+    print(open_file) 
+
 
 # This is a function which increases the progress bar value by the given increment amount
 def makeProgress():
@@ -500,6 +505,15 @@ Button(
     font=("courier", 15, "normal"),
     command=btnCheckFiles,
 ).place(x=39, y=330)
+
+# Auto Sort Button
+Button(
+    root,
+    text="Autosort",
+    fg="#6495ED",
+    font=("courier", 15, "normal"),
+    command=btnAutoSort,
+).place(x=180, y=330)
 
 # Create Deck Button
 Button(
