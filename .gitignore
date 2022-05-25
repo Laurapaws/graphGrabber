@@ -157,3 +157,4 @@ cython_debug/
 #.idea/
 newDeck.pptx
 .vscode/launch.json
+.DS_Store
