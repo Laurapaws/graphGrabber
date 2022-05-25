@@ -1,8 +1,6 @@
 from cgitb import handler, text
 from email.mime import image
 from fileinput import filename
-
-# from msilib.schema import ListBox
 from re import search
 from turtle import left
 from unittest import TextTestResult
@@ -19,6 +17,8 @@ from tkinter import *
 import platform
 import subprocess
 import glob
+import re
+import shutil
 
 
 posDict = {
@@ -332,6 +332,7 @@ def btnInitialiseFolders():
     checkCreateDir("VT-12 Three Phase")
     checkCreateDir("VT-15 Electric")
     checkCreateDir("VT-15 Magnetic")
+    checkCreateDir("Unsorted PDFs")
 
 
 def btnClearFolders():
@@ -418,8 +419,53 @@ def btnGO():
 
 def btnAutoSort():
     print('Auto Sort Clicked')
-    open_file = filedialog.askdirectory() # Returns opened path as str
-    print(open_file) 
+
+    ceStatus = 1
+
+    try:
+        if getphaseListValue()[0] == 1:
+            ceStatus = 3
+            print(str(ceStatus) + 'phase')
+        else:
+            ceStatus = 1
+            print(str(ceStatus) + 'phase')
+    except:
+        print('Defaulting to single phase')
+    
+
+    def regexCopy(file, dir, destination):
+        fileToCopy = dir + '/' + file
+        shutil.copy(fileToCopy, destination)
+        print('COPIED to ' + destination + ': ' + fileToCopy)
+
+    try:
+        dir = filedialog.askdirectory() # Returns opened path as str
+        
+        for file in os.listdir(dir):
+            if file.endswith(".Pdf") or file.endswith(".pdf"):
+                if re.search('REESS',file):
+                    regexCopy(file, dir, 'VT-01 3m')
+                elif re.search('NB',file):
+                    regexCopy(file, dir, 'VT-01 3m')
+                elif re.search('BB',file):
+                    regexCopy(file, dir, 'VT-01 3m')
+                elif re.search('E Field',file):
+                    regexCopy(file, dir, 'VT-15 Electric')
+                elif re.search('H Field',file):
+                    regexCopy(file, dir, 'VT-15 Magnetic')
+                elif re.search('CE',file):
+                    if ceStatus == 1:
+                        regexCopy(file, dir, 'VT-12 Single Phase')
+                    else:
+                        regexCopy(file, dir, 'VT-12 Three Phase')
+                else:
+                    regexCopy(file, dir, 'Unsorted PDFs')
+    except:
+        print('Auto sort failed')
+
+    btnCheckFiles()
+    
+
 
 
 # This is a function which increases the progress bar value by the given increment amount
@@ -428,9 +474,14 @@ def makeProgress():
     root.update_idletasks()
 
 
-# this is a function to get the selected list box value
-def getListboxValue():
+# this is a function to get the fileList list box value
+def getfileListValue():
     itemSelected = fileList.curselection()
+    return itemSelected
+
+# this is a function to get the phaseList list box value
+def getphaseListValue():
+    itemSelected = phaseList.curselection()
     return itemSelected
 
 
@@ -513,7 +564,7 @@ Button(
     fg="#6495ED",
     font=("courier", 15, "normal"),
     command=btnAutoSort,
-).place(x=180, y=330)
+).place(x=240, y=335)
 
 # Create Deck Button
 Button(
@@ -552,6 +603,14 @@ fileList = Listbox(
     root, bg="#F0FFFF", font=("courier", 10, "normal"), width=55, height=22
 )
 fileList.place(x=375, y=40)
+
+# VT-12 Phase List
+phaseList = Listbox(
+    root, bg="#F0FFFF", font=("courier", 10, "normal"), width=16, height=2
+)
+phaseList.insert('0', 'Single-Phase CE')
+phaseList.insert('1', 'Three-Phase CE')
+phaseList.place(x=230, y=375)
 
 
 root.mainloop()
