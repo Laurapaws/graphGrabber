@@ -419,10 +419,10 @@ def btnAutoSort():
     try:
         if getphaseListValue()[0] == 1:
             ceStatus = 3
-            print(str(ceStatus) + 'phase')
+            print(str(ceStatus) + ' phase')
         else:
             ceStatus = 1
-            print(str(ceStatus) + 'phase')
+            print(str(ceStatus) + ' phase')
     except:
         print('Defaulting to single phase')
     
