@@ -295,8 +295,9 @@ def loopFolder(folderName, deckName, reportFunction):
                 )
                 slideCounter = slideCounter + 1
                 statusMessage = file + " | Added to slide " + str(slideCounter)
-            except:
-                statusMessage = file + " | ERROR"
+            except Exception as e:
+                statusMessage = file + " | ERROR " + str(e)
+                print(e)
             fileList.delete(listCounter)
             fileList.insert(listCounter, statusMessage)
             listCounter = listCounter + 1
@@ -443,15 +444,15 @@ def btnAutoSort():
         
         for file in os.listdir(dir):
             if file.endswith(".Pdf") or file.endswith(".pdf"):
-                if re.search('REESS',file):
+                if re.search('"REESS"i',file):
                     regexCopy(file, dir, 'VT-01 3m')
-                elif re.search('NB',file):
+                elif re.search('"NB"i',file):
                     regexCopy(file, dir, 'VT-01 3m')
-                elif re.search('BB',file):
+                elif re.search('"BB"i',file):
                     regexCopy(file, dir, 'VT-01 3m')
-                elif re.search('E Field',file):
+                elif re.search('"e.field"i',file):
                     regexCopy(file, dir, 'VT-15 Electric')
-                elif re.search('H Field',file):
+                elif re.search('"H.Field"i',file):
                     regexCopy(file, dir, 'VT-15 Magnetic')
                 elif re.search('CE',file):
                     if ceStatus == 1:
@@ -460,8 +461,8 @@ def btnAutoSort():
                         regexCopy(file, dir, 'VT-12 Three Phase')
                 else:
                     regexCopy(file, dir, 'Unsorted PDFs')
-    except:
-        print('Auto sort failed')
+    except Exception as e:
+        print('Auto sort failed with ' + str(e))
 
     btnCheckFiles()
     
@@ -616,4 +617,4 @@ phaseList.place(x=230, y=375)
 root.mainloop()
 
 
-print("Finished all jobs...")
+print("Window Closing...")
