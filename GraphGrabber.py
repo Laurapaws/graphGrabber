@@ -1,9 +1,7 @@
 from cgitb import handler, text
-from email.mime import image
 from fileinput import filename
 from re import search
 from turtle import left
-from unittest import TextTestResult
 import fitz
 import PIL.Image
 from pptx import Presentation
@@ -302,6 +300,7 @@ def loopFolder(folderName, deckName, reportFunction):
             fileList.insert(listCounter, statusMessage)
             listCounter = listCounter + 1
             makeProgress()
+            root.update()
 
     print("Finished with folder: " + folderName)
 
