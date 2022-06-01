@@ -563,25 +563,30 @@ Button(
 ).place(x=39, y=330)
 
 # Auto Sort Button
-Button(
+wgtAutoSort = Button(
     root,
     text="Autosort",
     fg="#6495ED",
     font=("courier", 15, "normal"),
     command=btnAutoSort,
-).place(x=240, y=335)
+)
+wgtAutoSort.place(x=240, y=335)
 
 tipAutoSort = Pmw.Balloon(root)
-tipAutoSort.bind(btnAutoSort, 'message lol')
+tipAutoSort.bind(wgtAutoSort, 'Select the folder containing report PDFs and Graph Grabber will attempt to sort into folders for you\nUnsorted files will go into the Unsorted PDFs folder\nSelect single or three phase below for conducted emissions')
 
 # Create Deck Button
-Button(
+wgtGO = Button(
     root,
     text="Create Deck!",
     fg="#00CD00",
     font=("courier", 15, "normal"),
     command=btnGO,
-).place(x=39, y=380)
+)
+wgtGO.place(x=39, y=380)
+
+tipGO = Pmw.Balloon(root)
+tipGO.bind(wgtGO, 'Starts creating the Powerpoint\nPress Initialise Powerpoint to create a clean copy of newDeck.pptx to work on\nPress Initialise Folders to create the right folder structure\nPress Check Files so you know what the program will operate on')
 
 # Progress Bar
 progessBar_style = ttk.Style()
