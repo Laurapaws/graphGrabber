@@ -1,23 +1,23 @@
-from cgitb import handler, text
-from fileinput import filename
-from re import search
-from turtle import left
-import fitz
-import PIL.Image
-from pptx import Presentation
-from pptx.util import Pt
-import os
-import io
-from io import BytesIO
-import tkinter as tk
-from tkinter import ttk, filedialog
-from tkinter import *
-import platform
-import subprocess
 import glob
+import io
+import logging
+import os
+import platform
 import re
 import shutil
+import subprocess
+import tkinter as tk
+from io import BytesIO
+from tkinter import *
+from tkinter import filedialog, ttk
 
+import fitz
+import PIL.Image
+import Pmw
+from pptx import Presentation
+from pptx.util import Pt
+
+logging.basicConfig(filename='example.log', format='%(asctime)s %(message)s', encoding='utf-8', level=logging.INFO)
 
 posDict = {
     # Define coordinates for positioning. Format is test name then test type. e.g. a VT-07 test with a mediumwave plot
@@ -82,6 +82,8 @@ listCounter = 0
 cwd = os.getcwd()
 
 
+
+
 def searchReplace(search_str, repl_str, input, output):
     # Attempts to search and replace on the entire file. Likely needs rewriting to be more robust and not need a template
     prs = Presentation(input)
@@ -94,7 +96,7 @@ def searchReplace(search_str, repl_str, input, output):
                     new_text = cur_text.replace(str(search_str), str(repl_str))
                     text_frame.paragraphs[0].runs[0].text = new_text
     prs.save(output)
-    print(search_str + " replaced with " + repl_str)
+    logging.info(search_str + " replaced with " + repl_str)
 
 
 def extractImages(PDFName, image_folder):
@@ -107,7 +109,7 @@ def extractImages(PDFName, image_folder):
         page = doc.load_page(pageNo)  # number of page
         pix = page.get_pixmap(matrix=mat)
         extractedImages.append(pix)
-        print("Converting PDFs to Image")
+        logging.info("Converting PDFs to Image")
 
 
 def cropGraph(targetImg, cropTuple, imName):
@@ -115,7 +117,7 @@ def cropGraph(targetImg, cropTuple, imName):
     im = PIL.Image.open(io.BytesIO(targetPIL))
     im1 = im.crop(box=cropTuple)
     croppedImages.append(im1)
-    print(imName + " cropped")
+    logging.info(imName + " cropped")
 
 
 def insertImage(oldFileName, newFileName, img, positionTuple, slideNumber):
@@ -130,7 +132,7 @@ def insertImage(oldFileName, newFileName, img, positionTuple, slideNumber):
     img.save(temp, "PNG")
     slide.shapes.add_picture(temp, left, top, width, height)
     prs.save(newFileName)
-    print("Image inserted")
+    logging.info("Image inserted")
 
 
 def initialisePowerPoint(emptyDeckName, newDeckName):
@@ -139,7 +141,7 @@ def initialisePowerPoint(emptyDeckName, newDeckName):
     newDeckName = newDeckName + ".pptx"
     prs = Presentation(emptyDeckName)
     prs.save(newDeckName)
-    print("Created new PowerPoint: " + newDeckName)
+    logging.info("Created new PowerPoint: " + newDeckName)
 
 
 def VT07(PDFName, folderName, slideNumber, deckName):
@@ -169,7 +171,7 @@ def VT07(PDFName, folderName, slideNumber, deckName):
     )
     extractedImages.clear()
     croppedImages.clear()
-    print("Finished VT-07 for " + PDFName)
+    logging.info("Finished VT-07 for " + PDFName)
 
 
 def VT01Three(PDFName, folderName, slideNumber, deckName):
@@ -189,7 +191,7 @@ def VT01Three(PDFName, folderName, slideNumber, deckName):
     )
     extractedImages.clear()
     croppedImages.clear()
-    print("Finished VT-01 3m for " + PDFName)
+    logging.info("Finished VT-01 3m for " + PDFName)
 
 
 def VT12Single(PDFName, folderName, slideNumber, deckName):
@@ -205,7 +207,7 @@ def VT12Single(PDFName, folderName, slideNumber, deckName):
     )
     extractedImages.clear()
     croppedImages.clear()
-    print("Finished VT-12 Single Phase for " + PDFName)
+    logging.info("Finished VT-12 Single Phase for " + PDFName)
 
 
 def VT12Triple(PDFName, folderName, slideNumber, deckName):
@@ -229,7 +231,7 @@ def VT12Triple(PDFName, folderName, slideNumber, deckName):
     )
     extractedImages.clear()
     croppedImages.clear()
-    print("Finished VT-12 Three Phase for " + PDFName)
+    logging.info("Finished VT-12 Three Phase for " + PDFName)
 
 
 def VT15Electric(PDFName, folderName, slideNumber, deckName):
@@ -243,7 +245,7 @@ def VT15Electric(PDFName, folderName, slideNumber, deckName):
     insertImage(deckName, deckName, croppedImages[2], posDict["VT15E70"], slideNumber)
     extractedImages.clear()
     croppedImages.clear()
-    print("Finished VT-15 Electric Field for " + PDFName)
+    logging.info("Finished VT-15 Electric Field for " + PDFName)
 
 
 def VT15Magnetic(PDFName, folderName, slideNumber, deckName):
@@ -263,13 +265,13 @@ def VT15Magnetic(PDFName, folderName, slideNumber, deckName):
     insertImage(deckName, deckName, croppedImages[5], posDict["VT15HT70"], slideNumber)
     extractedImages.clear()
     croppedImages.clear()
-    print("Finished VT-15 Electric Field for " + PDFName)
+    logging.info("Finished VT-15 Electric Field for " + PDFName)
 
 
 def setSlideCounter(num):
     global slideCounter
     slideCounter = num
-    print("Slide counter set to " + str(slideCounter))
+    logging.info("Slide counter set to " + str(slideCounter))
 
 
 def loopFolder(folderName, deckName, reportFunction):
@@ -281,7 +283,7 @@ def loopFolder(folderName, deckName, reportFunction):
     for file in os.listdir(directory):
         if file.endswith(".Pdf") or file.endswith(".pdf"):
             statusMessage = file + " | No Status"
-            print("Working on slide " + str(slideCounter) + ", File Name: " + file)
+            logging.info("Working on slide " + str(slideCounter) + ", File Name: " + file)
             try:
                 reportFunction(file, folderName, slideCounter, deckName)
                 searchString = "*" + str(slideCounter) + "*"
@@ -295,14 +297,14 @@ def loopFolder(folderName, deckName, reportFunction):
                 statusMessage = file + " | Added to slide " + str(slideCounter)
             except Exception as e:
                 statusMessage = file + " | ERROR " + str(e)
-                print(e)
+                logging.error(e)
             fileList.delete(listCounter)
             fileList.insert(listCounter, statusMessage)
             listCounter = listCounter + 1
             makeProgress()
             root.update()
 
-    print("Finished with folder: " + folderName)
+    logging.info("Finished with folder: " + folderName)
 
 
 # this is a function to get the selected list box value
@@ -312,19 +314,19 @@ def getListboxValue():
 
 
 def btnInitialisePowerPoint():
-    print("Init PP clicked")
+    logging.info("Init PP clicked")
     initialisePowerPoint("emptyDeck", "newDeck")
 
 
 def btnInitialiseFolders():
 
-    print("Init folders clicked")
+    logging.info("Init folders clicked")
     def checkCreateDir(dir):
         if os.path.isdir(dir):
-            print(dir + ' already exists')
+            logging.warning(dir + ' already exists')
         else:
             os.mkdir(dir)
-            print('CREATED ' + dir)
+            logging.info('CREATED ' + dir)
 
     checkCreateDir("VT-01 3m")
     checkCreateDir("VT-07")
@@ -336,14 +338,14 @@ def btnInitialiseFolders():
 
 
 def btnClearFolders():
-    print("Beginning file deletion..")
+    logging.info("Beginning file deletion..")
 
     def deleteInFolder(dir):
         dir = dir + "/*"
         files = glob.glob(dir)
         for f in files:
             os.remove(f)
-            print("DELETED " + str(f))
+            logging.info("DELETED " + str(f))
 
     deleteInFolder("VT-01 3m")
     deleteInFolder("VT-07")
@@ -356,7 +358,7 @@ def btnClearFolders():
 
 def btnVisitFolders():
     path = os.getcwd()
-    print("Visiting working directory: " + path)
+    logging.info("Visiting working directory: " + path)
     if platform.system() == "Windows":
         os.startfile(path)
     elif platform.system() == "Darwin":
@@ -372,7 +374,7 @@ def getInputBoxValue():
 
 
 def btnCheckFiles():
-    print("Checking Files and displaying to user")
+    logging.info("Checking Files and displaying to user")
 
     global listCounter
 
@@ -406,7 +408,7 @@ def btnCheckFiles():
 
 
 def btnGO():
-    print("STARTING JOBS")
+    logging.info("STARTING JOBS")
     setSlideCounter(0)
     global listCounter
     listCounter = 0
@@ -416,27 +418,28 @@ def btnGO():
     loopFolder("VT-12 Three Phase", "newDeck", VT12Triple)
     loopFolder("VT-15 Electric", "newDeck", VT15Electric)
     loopFolder("VT-15 Magnetic", "newDeck", VT15Magnetic)
+    logging.info('JOBS FINISHED')
 
 def btnAutoSort():
-    print('Auto Sort Clicked')
+    logging.info('Auto Sort Clicked')
 
     ceStatus = 1
 
     try:
         if getphaseListValue()[0] == 1:
             ceStatus = 3
-            print(str(ceStatus) + ' phase')
+            logging.info(str(ceStatus) + ' phase')
         else:
             ceStatus = 1
-            print(str(ceStatus) + ' phase')
+            logging.info(str(ceStatus) + ' phase')
     except:
-        print('Defaulting to single phase')
+        logging.info('Defaulting to single phase')
 
 
     def regexCopy(file, dir, destination):
         fileToCopy = dir + '/' + file
         shutil.copy(fileToCopy, destination)
-        print('COPIED to ' + destination + ': ' + fileToCopy)
+        logging.info('COPIED to ' + destination + ': ' + fileToCopy)
 
     try:
         dir = filedialog.askdirectory() # Returns opened path as str
@@ -461,7 +464,7 @@ def btnAutoSort():
                 else:
                     regexCopy(file, dir, 'Unsorted PDFs')
     except Exception as e:
-        print('Auto sort failed with ' + str(e))
+        logging.info('Auto sort failed with ' + str(e))
 
     btnCheckFiles()
 
@@ -491,6 +494,8 @@ root = Tk()
 root.geometry("850x460")
 root.configure(background="#C1CDCD")
 root.title("Graph Grabber")
+
+Pmw.initialise(root)
 
 # Init PP Button
 Button(
@@ -566,6 +571,9 @@ Button(
     command=btnAutoSort,
 ).place(x=240, y=335)
 
+tipAutoSort = Pmw.Balloon(root)
+tipAutoSort.bind(btnAutoSort, 'message lol')
+
 # Create Deck Button
 Button(
     root,
@@ -613,7 +621,8 @@ phaseList.insert('1', 'Three-Phase CE')
 phaseList.place(x=230, y=375)
 
 
+
 root.mainloop()
 
 
-print("Window Closing...")
+logging.info("Window Closing...")

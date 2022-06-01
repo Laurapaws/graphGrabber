@@ -160,3 +160,6 @@ newDeck.pptx
 .DS_Store
 .DS_Store
 newDeck.pptx
+*.emf
+newDeck.pptx
+*.docx
