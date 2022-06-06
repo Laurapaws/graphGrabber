@@ -554,13 +554,17 @@ outputName.place(x=39, y=300)
 
 
 # Check Files Button
-Button(
+wgtCheckFiles = Button(
     root,
     text="Check Files",
     fg="#6495ED",
     font=("courier", 15, "normal"),
     command=btnCheckFiles,
-).place(x=39, y=330)
+)
+wgtCheckFiles.place(x=39, y=330)
+
+tipName = Pmw.Balloon(root)
+tipName.bind(wgtCheckFiles,'This will scan through the current directory\nUse it to check that you have all files in the right places\nNeeds the folder structure created with the Initialise Folders button')
 
 # Auto Sort Button
 wgtAutoSort = Button(
