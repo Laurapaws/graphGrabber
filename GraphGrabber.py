@@ -1,12 +1,14 @@
 import glob
 import io
 import logging
+import sys
 import os
 import platform
 import re
 import shutil
 import subprocess
 import tkinter as tk
+import time
 from io import BytesIO
 from tkinter import *
 from tkinter import filedialog, ttk
@@ -79,9 +81,11 @@ croppedImages = []
 rejectedList = []
 slideCounter = 0
 listCounter = 0
+
 cwd = os.getcwd()
 
-
+currentTime = time.time()
+logging.info('************************** Starting GraphGrabber! **************************')
 
 
 def searchReplace(search_str, repl_str, input, output):
@@ -109,7 +113,7 @@ def extractImages(PDFName, image_folder):
         page = doc.load_page(pageNo)  # number of page
         pix = page.get_pixmap(matrix=mat)
         extractedImages.append(pix)
-        logging.info("Converting PDFs to Image")
+        logging.info("Converting " + fileName + " page " + str(pageNo) + " to Image")
 
 
 def cropGraph(targetImg, cropTuple, imName):
@@ -132,11 +136,22 @@ def insertImage(oldFileName, newFileName, img, positionTuple, slideNumber):
     img.save(temp, "PNG")
     slide.shapes.add_picture(temp, left, top, width, height)
     prs.save(newFileName)
-    logging.info("Image inserted")
+    logging.info("Image inserted with " + str(positionTuple) + " to " + str(slideNumber))
 
 
 def initialisePowerPoint(emptyDeckName, newDeckName):
     # Sets up the empty, fresh PPTX file
+
+    def resource_path(relative_path):
+        try:
+            base_path = sys._MEIPASS
+        except Exception:
+            base_path = os.path.abspath(".")
+
+        return os.path.join(base_path, relative_path)
+
+    emptyDeckName = resource_path(emptyDeckName)
+
     emptyDeckName = emptyDeckName + ".pptx"
     newDeckName = newDeckName + ".pptx"
     prs = Presentation(emptyDeckName)
@@ -171,7 +186,7 @@ def VT07(PDFName, folderName, slideNumber, deckName):
     )
     extractedImages.clear()
     croppedImages.clear()
-    logging.info("Finished VT-07 for " + PDFName)
+    logging.info("@@@@@@ Finished VT-07 for " + PDFName)
 
 
 def VT01Three(PDFName, folderName, slideNumber, deckName):
@@ -191,7 +206,7 @@ def VT01Three(PDFName, folderName, slideNumber, deckName):
     )
     extractedImages.clear()
     croppedImages.clear()
-    logging.info("Finished VT-01 3m for " + PDFName)
+    logging.info("@@@@@@ Finished VT-01 3m for " + PDFName)
 
 
 def VT12Single(PDFName, folderName, slideNumber, deckName):
@@ -207,7 +222,7 @@ def VT12Single(PDFName, folderName, slideNumber, deckName):
     )
     extractedImages.clear()
     croppedImages.clear()
-    logging.info("Finished VT-12 Single Phase for " + PDFName)
+    logging.info("@@@@@@ Finished VT-12 Single Phase for " + PDFName)
 
 
 def VT12Triple(PDFName, folderName, slideNumber, deckName):
@@ -231,7 +246,7 @@ def VT12Triple(PDFName, folderName, slideNumber, deckName):
     )
     extractedImages.clear()
     croppedImages.clear()
-    logging.info("Finished VT-12 Three Phase for " + PDFName)
+    logging.info("@@@@@@  VT-12 Three Phase for " + PDFName)
 
 
 def VT15Electric(PDFName, folderName, slideNumber, deckName):
@@ -245,7 +260,7 @@ def VT15Electric(PDFName, folderName, slideNumber, deckName):
     insertImage(deckName, deckName, croppedImages[2], posDict["VT15E70"], slideNumber)
     extractedImages.clear()
     croppedImages.clear()
-    logging.info("Finished VT-15 Electric Field for " + PDFName)
+    logging.info("@@@@@@ Finished VT-15 Electric Field for " + PDFName)
 
 
 def VT15Magnetic(PDFName, folderName, slideNumber, deckName):
@@ -265,7 +280,7 @@ def VT15Magnetic(PDFName, folderName, slideNumber, deckName):
     insertImage(deckName, deckName, croppedImages[5], posDict["VT15HT70"], slideNumber)
     extractedImages.clear()
     croppedImages.clear()
-    logging.info("Finished VT-15 Electric Field for " + PDFName)
+    logging.info("@@@@@@ Finished VT-15 Electric Field for " + PDFName)
 
 
 def setSlideCounter(num):
@@ -304,7 +319,7 @@ def loopFolder(folderName, deckName, reportFunction):
             makeProgress()
             root.update()
 
-    logging.info("Finished with folder: " + folderName)
+    logging.info("@@@@@@ Finished with folder: " + folderName)
 
 
 # this is a function to get the selected list box value
@@ -353,7 +368,11 @@ def btnClearFolders():
     deleteInFolder("VT-12 Three Phase")
     deleteInFolder("VT-15 Electric")
     deleteInFolder("VT-15 Magnetic")
+    deleteInFolder("Unsorted PDFs")
     btnCheckFiles()
+    logging.info("File deletion completed")
+
+    
 
 
 def btnVisitFolders():
@@ -404,21 +423,32 @@ def btnCheckFiles():
     loopInsertList("VT-12 Three Phase")
     loopInsertList("VT-15 Electric")
     loopInsertList("VT-15 Magnetic")
+    progessBar["value"] = 0
     progessBar["maximum"] = listCounter - 6
+
+   
+
+    
 
 
 def btnGO():
     logging.info("STARTING JOBS")
+    btnCheckFiles()
     setSlideCounter(0)
     global listCounter
     listCounter = 0
-    loopFolder("VT-01 3m", "newDeck", VT01Three)
-    loopFolder("VT-07", "newDeck", VT07)
-    loopFolder("VT-12 Single Phase", "newDeck", VT12Single)
-    loopFolder("VT-12 Three Phase", "newDeck", VT12Triple)
-    loopFolder("VT-15 Electric", "newDeck", VT15Electric)
-    loopFolder("VT-15 Magnetic", "newDeck", VT15Magnetic)
-    logging.info('JOBS FINISHED')
+    outputFileName = getInputBoxValue()
+    outputFileName = f"{outputFileName} {time.time():.0f}"
+    logging.info('Creating file: ' + outputFileName)
+    initialisePowerPoint("emptyDeck", outputFileName)
+    loopFolder("VT-01 3m", outputFileName, VT01Three)
+    loopFolder("VT-07", outputFileName, VT07)
+    loopFolder("VT-12 Single Phase", outputFileName, VT12Single)
+    loopFolder("VT-12 Three Phase", outputFileName, VT12Triple)
+    loopFolder("VT-15 Electric", outputFileName, VT15Electric)
+    loopFolder("VT-15 Magnetic", outputFileName, VT15Magnetic)
+    logging.info('@@@@@@ JOBS FINISHED')
+    
 
 def btnAutoSort():
     logging.info('Auto Sort Clicked')
@@ -500,29 +530,37 @@ Pmw.initialise(root)
 # Init PP Button
 Button(
     root,
-    text="Initialise PowerPoint",
+    text="DEBUG: INIT PP",
     bg="#F0FFFF",
     font=("courier", 14, "normal"),
     command=btnInitialisePowerPoint,
 ).place(x=39, y=40)
 
 # Init Folders Button
-Button(
+wgtInitFolders = Button(
     root,
     text="Initialise Folder Structure",
     bg="#F0FFFF",
     font=("courier", 14, "normal"),
     command=btnInitialiseFolders,
-).place(x=39, y=86)
+)
+wgtInitFolders.place(x=39, y=86)
+
+tipName = Pmw.Balloon(root)
+tipName.bind(wgtInitFolders,'Will create a folder structure required for use by GraphGrabber in the current working directory\nDo not rename these folders\nWill not create them if they already exist')
 
 # Clear Folders Button
-Button(
+wgtClearFolders = Button(
     root,
     text="Clear Folders",
     fg="#FF8247",
     font=("courier", 15, "normal"),
     command=btnClearFolders,
-).place(x=39, y=136)
+)
+wgtClearFolders.place(x=39, y=136)
+
+tipName = Pmw.Balloon(root)
+tipName.bind(wgtClearFolders,'This will delete everything in the folders created by GraphGrabber\nDo not have anything stored in here that you want to keep!')
 
 # Directory Label
 Label(
@@ -535,13 +573,17 @@ Label(
 ).place(x=20, y=175)
 
 # Go to Directory Button
-Button(
+wgtVisitFolders = Button(
     root,
     text="Open Working Directory",
     fg="#6495ED",
     font=("courier", 15, "normal"),
     command=btnVisitFolders,
-).place(x=39, y=215)
+)
+wgtVisitFolders.place(x=39, y=215)
+
+tipName = Pmw.Balloon(root)
+tipName.bind(wgtVisitFolders,'This will open the current working directory as displayed above.\nBy default this is the folder where GraphGrabber.exe lives\nMove the .exe somewhere else to change this folder.')
 
 # Entry Label
 Label(
@@ -590,7 +632,7 @@ wgtGO = Button(
 wgtGO.place(x=39, y=380)
 
 tipGO = Pmw.Balloon(root)
-tipGO.bind(wgtGO, 'Starts creating the Powerpoint\nPress Initialise Powerpoint to create a clean copy of newDeck.pptx to work on\nPress Initialise Folders to create the right folder structure\nPress Check Files so you know what the program will operate on')
+tipGO.bind(wgtGO, 'Starts creating the Powerpoint\nFIle name will be your output with the Unix epoch\nPress Initialise Folders to create the right folder structure\nPress Check Files so you know what the program will operate on')
 
 # Progress Bar
 progessBar_style = ttk.Style()
@@ -615,9 +657,10 @@ Label(root, text="File List", bg="#C1CDCD", font=("courier", 14, "normal")).plac
     x=375, y=16
 )
 
+
 # File List
 fileList = Listbox(
-    root, bg="#F0FFFF", font=("courier", 10, "normal"), width=55, height=22
+    root, bg="#F0FFFF", font=("courier", 10, "normal"), width=200, height=22
 )
 fileList.place(x=375, y=40)
 
@@ -634,4 +677,4 @@ phaseList.place(x=230, y=375)
 root.mainloop()
 
 
-logging.info("Window Closing...")
+logging.info("************************** Window Closing... **************************")
