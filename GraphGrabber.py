@@ -19,7 +19,8 @@ import Pmw
 from pptx import Presentation
 from pptx.util import Pt
 
-logging.basicConfig(filename='example.log', format='%(asctime)s %(message)s', encoding='utf-8', level=logging.INFO)
+logging.basicConfig(filename='GG.log', format='%(asctime)s %(message)s', encoding='utf-8', level=logging.INFO)
+#logging.basicConfig(filename='errors.log', format='%(asctime)s %(message)s', encoding='utf-8', level=logging.ERROR)
 
 posDict = {
     # Define coordinates for positioning. Format is test name then test type. e.g. a VT-07 test with a mediumwave plot
@@ -186,7 +187,7 @@ def VT07(PDFName, folderName, slideNumber, deckName):
     )
     extractedImages.clear()
     croppedImages.clear()
-    logging.info("@@@@@@ Finished VT-07 for " + PDFName)
+    logging.info(">>>>>>>>>>>> Finished VT-07 for " + PDFName)
 
 
 def VT01Three(PDFName, folderName, slideNumber, deckName):
@@ -206,7 +207,7 @@ def VT01Three(PDFName, folderName, slideNumber, deckName):
     )
     extractedImages.clear()
     croppedImages.clear()
-    logging.info("@@@@@@ Finished VT-01 3m for " + PDFName)
+    logging.info(">>>>>>>>>>>> Finished VT-01 3m for " + PDFName)
 
 
 def VT12Single(PDFName, folderName, slideNumber, deckName):
@@ -222,7 +223,7 @@ def VT12Single(PDFName, folderName, slideNumber, deckName):
     )
     extractedImages.clear()
     croppedImages.clear()
-    logging.info("@@@@@@ Finished VT-12 Single Phase for " + PDFName)
+    logging.info(">>>>>>>>>>>> Finished VT-12 Single Phase for " + PDFName)
 
 
 def VT12Triple(PDFName, folderName, slideNumber, deckName):
@@ -246,7 +247,7 @@ def VT12Triple(PDFName, folderName, slideNumber, deckName):
     )
     extractedImages.clear()
     croppedImages.clear()
-    logging.info("@@@@@@  VT-12 Three Phase for " + PDFName)
+    logging.info(">>>>>>>>>>>>  VT-12 Three Phase for " + PDFName)
 
 
 def VT15Electric(PDFName, folderName, slideNumber, deckName):
@@ -260,7 +261,7 @@ def VT15Electric(PDFName, folderName, slideNumber, deckName):
     insertImage(deckName, deckName, croppedImages[2], posDict["VT15E70"], slideNumber)
     extractedImages.clear()
     croppedImages.clear()
-    logging.info("@@@@@@ Finished VT-15 Electric Field for " + PDFName)
+    logging.info(">>>>>>>>>>>> Finished VT-15 Electric Field for " + PDFName)
 
 
 def VT15Magnetic(PDFName, folderName, slideNumber, deckName):
@@ -280,7 +281,7 @@ def VT15Magnetic(PDFName, folderName, slideNumber, deckName):
     insertImage(deckName, deckName, croppedImages[5], posDict["VT15HT70"], slideNumber)
     extractedImages.clear()
     croppedImages.clear()
-    logging.info("@@@@@@ Finished VT-15 Electric Field for " + PDFName)
+    logging.info(">>>>>>>>>>>> Finished VT-15 Electric Field for " + PDFName)
 
 
 def setSlideCounter(num):
@@ -319,7 +320,7 @@ def loopFolder(folderName, deckName, reportFunction):
             makeProgress()
             root.update()
 
-    logging.info("@@@@@@ Finished with folder: " + folderName)
+    logging.info(">>>>>>>>>>>> Finished with folder: " + folderName)
 
 
 # this is a function to get the selected list box value
@@ -447,7 +448,7 @@ def btnGO():
     loopFolder("VT-12 Three Phase", outputFileName, VT12Triple)
     loopFolder("VT-15 Electric", outputFileName, VT15Electric)
     loopFolder("VT-15 Magnetic", outputFileName, VT15Magnetic)
-    logging.info('@@@@@@ JOBS FINISHED')
+    logging.info('>>>>>>>>>>>> JOBS FINISHED')
     
 
 def btnAutoSort():
@@ -476,17 +477,17 @@ def btnAutoSort():
 
         for file in os.listdir(dir):
             if file.endswith(".Pdf") or file.endswith(".pdf"):
-                if re.search('"REESS"i',file):
+                if re.search('REESS',file,flags=re.I):
                     regexCopy(file, dir, 'VT-01 3m')
-                elif re.search('"NB"i',file):
+                elif re.search('NB',file,flags=re.I):
                     regexCopy(file, dir, 'VT-01 3m')
-                elif re.search('"BB"i',file):
+                elif re.search('BB',file,flags=re.I):
                     regexCopy(file, dir, 'VT-01 3m')
-                elif re.search('"e.field"i',file):
+                elif re.search('e.field',file,flags=re.I):
                     regexCopy(file, dir, 'VT-15 Electric')
-                elif re.search('"H.Field"i',file):
+                elif re.search('H.Field',file,flags=re.I):
                     regexCopy(file, dir, 'VT-15 Magnetic')
-                elif re.search('CE',file):
+                elif re.search('(?<!i)(?<!n)CE',file,flags=re.I):
                     if ceStatus == 1:
                         regexCopy(file, dir, 'VT-12 Single Phase')
                     else:
@@ -539,7 +540,7 @@ Button(
 # Init Folders Button
 wgtInitFolders = Button(
     root,
-    text="Initialise Folder Structure",
+    text="DEBUG: INIT FOLDERS",
     bg="#F0FFFF",
     font=("courier", 14, "normal"),
     command=btnInitialiseFolders,
@@ -663,6 +664,13 @@ fileList = Listbox(
     root, bg="#F0FFFF", font=("courier", 10, "normal"), width=200, height=22
 )
 fileList.place(x=375, y=40)
+
+def listbox_copy(event):
+    root.clipboard_clear()
+    selected = fileList.get(ANCHOR)
+    root.clipboard_append(selected)
+
+fileList.bind('<Double-Button-1>', listbox_copy)
 
 # VT-12 Phase List
 phaseList = Listbox(
