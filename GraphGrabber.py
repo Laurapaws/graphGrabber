@@ -91,6 +91,7 @@ logging.info('************************** Starting GraphGrabber! ****************
 
 def searchReplace(search_str, repl_str, input, output):
     # Attempts to search and replace on the entire file. Likely needs rewriting to be more robust and not need a template
+    # From Stackoverflow which explains the change in style
     prs = Presentation(input)
     for slide in prs.slides:
         for shape in slide.shapes:
