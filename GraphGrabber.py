@@ -105,8 +105,8 @@ def searchReplace(search_str, repl_str, input, output):
     logging.info(search_str + " replaced with " + repl_str)
 
 
-def extractImages(PDFName, image_folder):
-    fileName = image_folder + "/" + PDFName
+def extractImages(PDFName, imageFolder):
+    fileName = imageFolder + "/" + PDFName
     doc = fitz.open(fileName)
     zoom = 2  # to increase the resolution
     mat = fitz.Matrix(zoom, zoom)
@@ -216,12 +216,8 @@ def VT12Single(PDFName, folderName, slideNumber, deckName):
     cropGraph(extractedImages[1], cropDict["upperOld"], "VT12SingleL1")
     cropGraph(extractedImages[1], cropDict["lowerOld"], "VT12SingleN")
     deckName = deckName + ".pptx"
-    insertImage(
-        deckName, deckName, croppedImages[0], posDict["VT12SingleL1"], slideNumber
-    )
-    insertImage(
-        deckName, deckName, croppedImages[1], posDict["VT12SingleN"], slideNumber
-    )
+    insertImage(deckName, deckName, croppedImages[0], posDict["VT12SingleL1"], slideNumber)
+    insertImage(deckName, deckName, croppedImages[1], posDict["VT12SingleN"], slideNumber)
     extractedImages.clear()
     croppedImages.clear()
     logging.info(">>>>>>>>>>>> Finished VT-12 Single Phase for " + PDFName)
