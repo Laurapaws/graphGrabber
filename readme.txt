@@ -53,13 +53,17 @@ Creating a new deck is simple, but can break if you give it the wrong files. Her
 
 
 **posDict**
+
 Coordinates that determine where an image will be placed on the slide.
 Tuple Order: Left , Top, Width, Height
     
 *Example*
 "VT07MW": (Pt(1), Pt(70), Pt(233), Pt(176))
 
+---
+
 **cropDict**
+
 Similar to posDict but this one determines where in the PDF image that GraphGrabber crops a graph. There is an extra hardcoded value for 
 
 
