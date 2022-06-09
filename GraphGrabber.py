@@ -11,7 +11,7 @@ import tkinter as tk
 import time
 from io import BytesIO
 from tkinter import *
-from tkinter import filedialog, ttk
+from tkinter import filedialog, ttk, messagebox
 
 import fitz
 import PIL.Image
@@ -333,7 +333,7 @@ def btnInitialisePowerPoint():
 
 def btnInitialiseFolders():
 
-    logging.info("Init folders clicked")
+    logging.info("Creating Directories")
     def checkCreateDir(dir):
         if os.path.isdir(dir):
             logging.warning(dir + ' already exists')
@@ -349,9 +349,58 @@ def btnInitialiseFolders():
     checkCreateDir("VT-15 Magnetic")
     checkCreateDir("Unsorted PDFs")
 
+def checkFolders():
+
+    dirs = ['Unsorted PDFs','VT-01 3m','VT-07','VT-12 Single Phase','VT-12 Three Phase','VT-15 Electric','VT-15 Magnetic']
+    missingDirs = []
+
+    def checkCreateDir(dir):
+        if os.path.isdir(dir):
+            logging.warning(dir + ' already exists')
+        else:
+            os.mkdir(dir)
+            logging.info('CREATED ' + dir)
+   
+
+    for dir in dirs:
+        if os.path.isdir(dir):
+            logging.info(dir + "already exists")
+        else:
+            missingDirs.append(dir)
+    
+    logging.info('Missing Directories: ' + str(missingDirs))
+
+    if len(missingDirs) > 0:
+        checkFolderMsg = tk.messagebox.askquestion ('Missing Directories',"Some folders required for GraphGrabber are missing, do you want to create them now?", icon = 'warning')
+        
+        if checkFolderMsg == 'yes':
+            logging.info("User clicked Yes: Attempting to create directories")
+            for dir in missingDirs:
+                checkCreateDir(dir)
+            tk.messagebox.showinfo('Successfully Created Folders!', 'Created the following directories:' + "\n\n" +"\n".join(missingDirs))
+        else:
+            logging.info("User clicked No: Not creating directories")
+
+
+
+
+
+
+        
+
+
+        
+        
+
+
+
+
+
+    
 
 def btnClearFolders():
-    logging.info("Beginning file deletion..")
+
+    delList = ['Deleted the following files:']
 
     def deleteInFolder(dir):
         dir = dir + "/*"
@@ -359,21 +408,39 @@ def btnClearFolders():
         for f in files:
             os.remove(f)
             logging.info("DELETED " + str(f))
+            delList.append(f)
 
-    deleteInFolder("VT-01 3m")
-    deleteInFolder("VT-07")
-    deleteInFolder("VT-12 Single Phase")
-    deleteInFolder("VT-12 Three Phase")
-    deleteInFolder("VT-15 Electric")
-    deleteInFolder("VT-15 Magnetic")
-    deleteInFolder("Unsorted PDFs")
-    btnCheckFiles()
-    logging.info("File deletion completed")
+    def confirmDel():
+        MsgBox = tk.messagebox.askquestion ('PDF Deletion',"This will delete all files in GraphGrabber's folders: VT-01, VT-07, VT-12, VT-15, Unsorted PDFs", icon = 'warning')
+        if MsgBox == 'yes':
+            logging.info("User clicked Yes: Beginning file deletion")
+            deleteInFolder("VT-01 3m")
+            deleteInFolder("VT-07")
+            deleteInFolder("VT-12 Single Phase")
+            deleteInFolder("VT-12 Three Phase")
+            deleteInFolder("VT-15 Electric")
+            deleteInFolder("VT-15 Magnetic")
+            deleteInFolder("Unsorted PDFs")
+            print(delList)
+
+            tk.messagebox.showinfo('File Deletion Complete', "\n".join(delList))
+
+            logging.info("File deletion completed")
+
+            btnCheckFiles()
+        else:
+            logging.info("User clicked No: Beginning file deletion")
+
+    confirmDel()
+    
+    
+    
 
     
 
 
 def btnVisitFolders():
+    checkFolders()
     path = os.getcwd()
     logging.info("Visiting working directory: " + path)
     if platform.system() == "Windows":
@@ -390,8 +457,19 @@ def getInputBoxValue():
     return userInput
 
 
+  
+
+
+
+  
+
+
+
+
 def btnCheckFiles():
     logging.info("Checking Files and displaying to user")
+
+    checkFolders()
 
     global listCounter
 
@@ -518,6 +596,7 @@ def getphaseListValue():
 
 root = Tk()
 
+
 # This is the section of code which creates the main window
 root.geometry("850x460")
 root.configure(background="#C1CDCD")
@@ -525,27 +604,27 @@ root.title("Graph Grabber")
 
 Pmw.initialise(root)
 
-# Init PP Button
-Button(
-    root,
-    text="DEBUG: INIT PP",
-    bg="#F0FFFF",
-    font=("courier", 14, "normal"),
-    command=btnInitialisePowerPoint,
-).place(x=39, y=40)
+# # Init PP Button
+# Button(
+#     root,
+#     text="DEBUG: INIT PP",
+#     bg="#F0FFFF",
+#     font=("courier", 14, "normal"),
+#     command=btnInitialisePowerPoint,
+# ).place(x=39, y=40)
 
-# Init Folders Button
-wgtInitFolders = Button(
-    root,
-    text="DEBUG: INIT FOLDERS",
-    bg="#F0FFFF",
-    font=("courier", 14, "normal"),
-    command=btnInitialiseFolders,
-)
-wgtInitFolders.place(x=39, y=86)
+# # Init Folders Button
+# wgtInitFolders = Button(
+#     root,
+#     text="DEBUG: INIT FOLDERS",
+#     bg="#F0FFFF",
+#     font=("courier", 14, "normal"),
+#     command=btnInitialiseFolders,
+# )
+# wgtInitFolders.place(x=39, y=86)
 
-tipName = Pmw.Balloon(root)
-tipName.bind(wgtInitFolders,'Will create a folder structure required for use by GraphGrabber in the current working directory\nDo not rename these folders\nWill not create them if they already exist')
+# tipName = Pmw.Balloon(root)
+# tipName.bind(wgtInitFolders,'Will create a folder structure required for use by GraphGrabber in the current working directory\nDo not rename these folders\nWill not create them if they already exist')
 
 # Clear Folders Button
 wgtClearFolders = Button(
@@ -555,7 +634,7 @@ wgtClearFolders = Button(
     font=("courier", 15, "normal"),
     command=btnClearFolders,
 )
-wgtClearFolders.place(x=39, y=136)
+wgtClearFolders.place(x=39, y=15)
 
 tipName = Pmw.Balloon(root)
 tipName.bind(wgtClearFolders,'This will delete everything in the folders created by GraphGrabber\nDo not have anything stored in here that you want to keep!')
@@ -565,10 +644,10 @@ Label(
     root,
     text=cwd,
     bg="#C1CDCD",
-    wraplength=400,
+    wraplength=330,
     justify="left",
-    font=("courier", 8, "normal"),
-).place(x=20, y=175)
+    font=("courier", 10, "normal"),
+).place(x=39, y=60)
 
 # Go to Directory Button
 wgtVisitFolders = Button(
@@ -578,7 +657,7 @@ wgtVisitFolders = Button(
     font=("courier", 15, "normal"),
     command=btnVisitFolders,
 )
-wgtVisitFolders.place(x=39, y=215)
+wgtVisitFolders.place(x=39, y=110)
 
 tipName = Pmw.Balloon(root)
 tipName.bind(wgtVisitFolders,'This will open the current working directory as displayed above.\nBy default this is the folder where GraphGrabber.exe lives\nMove the .exe somewhere else to change this folder.')
@@ -658,7 +737,7 @@ Label(root, text="File List", bg="#C1CDCD", font=("courier", 14, "normal")).plac
 
 # File List
 fileList = Listbox(
-    root, bg="#F0FFFF", font=("courier", 10, "normal"), width=200, height=22
+    root, bg="#F0FFFF", font=("courier", 10, "normal"), width=55, height=22
 )
 fileList.place(x=375, y=40)
 
@@ -677,7 +756,7 @@ phaseList.insert('0', 'Single-Phase CE')
 phaseList.insert('1', 'Three-Phase CE')
 phaseList.place(x=230, y=375)
 
-
+checkFolders()
 
 root.mainloop()
 
