@@ -381,22 +381,7 @@ def checkFolders():
         else:
             logging.info("User clicked No: Not creating directories")
 
-
-
-
-
-
-        
-
-
-        
-        
-
-
-
-
-
-    
+   
 
 def btnClearFolders():
 
@@ -508,23 +493,26 @@ def btnCheckFiles():
 
 
 def btnGO():
-    logging.info("STARTING JOBS")
-    btnCheckFiles()
-    setSlideCounter(0)
-    global listCounter
-    listCounter = 0
-    outputFileName = getInputBoxValue()
-    outputFileName = f"{outputFileName} {time.time():.0f}"
-    logging.info('Creating file: ' + outputFileName)
-    initialisePowerPoint("emptyDeck", outputFileName)
-    loopFolder("VT-01 3m", outputFileName, VT01Three)
-    loopFolder("VT-07", outputFileName, VT07)
-    loopFolder("VT-12 Single Phase", outputFileName, VT12Single)
-    loopFolder("VT-12 Three Phase", outputFileName, VT12Triple)
-    loopFolder("VT-15 Electric", outputFileName, VT15Electric)
-    loopFolder("VT-15 Magnetic", outputFileName, VT15Magnetic)
-    logging.info('>>>>>>>>>>>> JOBS FINISHED')
-    
+    try:
+        checkFolders()
+        logging.info("STARTING JOBS")
+        btnCheckFiles()
+        setSlideCounter(0)
+        global listCounter
+        listCounter = 0
+        outputFileName = getInputBoxValue()
+        outputFileName = f"{outputFileName} {time.time():.0f}"
+        logging.info('Creating file: ' + outputFileName)
+        initialisePowerPoint("emptyDeck", outputFileName)
+        loopFolder("VT-01 3m", outputFileName, VT01Three)
+        loopFolder("VT-07", outputFileName, VT07)
+        loopFolder("VT-12 Single Phase", outputFileName, VT12Single)
+        loopFolder("VT-12 Three Phase", outputFileName, VT12Triple)
+        loopFolder("VT-15 Electric", outputFileName, VT15Electric)
+        loopFolder("VT-15 Magnetic", outputFileName, VT15Magnetic)
+        logging.info('>>>>>>>>>>>> JOBS FINISHED')
+    except Exception as e:
+        logging.info('Failed to create deck (no folders?) ' + str(e))
 
 def btnAutoSort():
     logging.info('Auto Sort Clicked')
