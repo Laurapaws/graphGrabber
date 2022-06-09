@@ -364,7 +364,7 @@ def checkFolders():
 
     for dir in dirs:
         if os.path.isdir(dir):
-            logging.info(dir + "already exists")
+            logging.info(dir + " already exists")
         else:
             missingDirs.append(dir)
     
