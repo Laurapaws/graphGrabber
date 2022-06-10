@@ -709,9 +709,9 @@ root = Tk()
 
 
 # This is the section of code which creates the main window
-root.geometry("850x460")
-root.configure(background="#C1CDCD")
-root.title("Graph Grabber")
+root.geometry("550x850")
+root.configure(background="#34495e")
+root.title("GraphGrabber v1")
 
 Pmw.initialise(root)
 
@@ -742,88 +742,94 @@ Pmw.initialise(root)
 # Clear Folders Button
 wgtClearFolders = Button(
     root,
-    text="Clear Folders",
-    fg="#FF8247",
-    font=("courier", 15, "normal"),
+    text="Clear\nFolders",
+    fg="#f1c40f",
+    bg='#c0392b',
+    font=("Helvetica", 13, "normal"),
     command=btnClearFolders,
 )
-wgtClearFolders.place(x=39, y=15)
+wgtClearFolders.place(x=475, y=10)
 
 tipName = Pmw.Balloon(root)
 tipName.bind(
     wgtClearFolders,
     '''This will delete everything in the folders created by GraphGrabber
-    Do not have anything stored in here that you want to keep!''')
+Do not have anything stored in here that you want to keep!''')
 
 # Directory Label
 Label(
     root,
     text=cwd,
-    bg="#C1CDCD",
-    wraplength=330,
+    fg="#f1c40f",
+    bg="#34495e",
+    wraplength=530,
     justify="left",
     font=("courier", 10, "normal"),
-).place(x=39, y=60)
+).place(x=10, y=64)
 
 # Go to Directory Button
 wgtVisitFolders = Button(
     root,
-    text="Open Working Directory",
-    fg="#6495ED",
-    font=("courier", 15, "normal"),
+    text="Open Working\nDirectory",
+    bg="#bdc3c7",
+    fg="#2c3e50",
+    font=("Helvetica", 13, "normal"),
     command=btnVisitFolders,
 )
-wgtVisitFolders.place(x=39, y=110)
+wgtVisitFolders.place(x=10, y=10)
 
 tipName = Pmw.Balloon(root)
 tipName.bind(
     wgtVisitFolders,
     '''This will open the current working directory as displayed above.
-    By default this is the folder where GraphGrabber.exe lives
-    Move the .exe somewhere else to change this folder.''')
+By default this is the folder where GraphGrabber.exe lives
+Move the .exe somewhere else to change this folder.''')
 
 # Check Files Button
 wgtCheckFiles = Button(
     root,
-    text="Check Files",
-    fg="#6495ED",
-    font=("courier", 15, "normal"),
+    text="Check\nFiles",
+    bg="#3498db",
+    fg="#ecf0f1",
+    font=("Helvetica", 13, "normal"),
     command=btnCheckFiles,
 )
-wgtCheckFiles.place(x=39, y=330)
+wgtCheckFiles.place(x=328, y=10)
 
 tipName = Pmw.Balloon(root)
 tipName.bind(
     wgtCheckFiles,
     '''This will scan through the current directory
-    Use it to check that you have all files in the right places
-    Needs the folder structure created with the Initialise Folders button''')
+Use it to check that you have all files in the right places
+Needs the folder structure created with the Initialise Folders button''')
 
 # Auto Sort Button
 wgtAutoSort = Button(
     root,
-    text="Autosort",
-    fg="#6495ED",
-    font=("courier", 15, "normal"),
+    text="Auto\nSort",
+    bg="#bdc3c7",
+    fg="#2c3e50",
+    font=("Helvetica", 13, "normal"),
     command=btnAutoSort,
 )
-wgtAutoSort.place(x=240, y=335)
+wgtAutoSort.place(x=140, y=10)
 
 tipAutoSort = Pmw.Balloon(root)
 tipAutoSort.bind(wgtAutoSort, '''Select the folder containing report PDFs
-Graph Grabber will attempt to sort them into its folders for you
+GraphGrabber will attempt to sort them into its folders for you
 Unsorted files will go into the Unsorted PDFs folder
 Select single or three phase below for conducted emissions''')
 
 # Create Deck Button
 wgtGO = Button(
     root,
-    text="Create Deck!",
-    fg="#00CD00",
-    font=("courier", 15, "normal"),
+    text="Create\nDeck!",
+    bg="#1abc9c",
+    fg="#ecf0f1",
+    font=("Helvetica", 13, "normal"),
     command=btnGO,
 )
-wgtGO.place(x=39, y=380)
+wgtGO.place(x=401, y=10)
 
 tipGO = Pmw.Balloon(root)
 tipGO.bind(wgtGO, '''Starts creating the Powerpoint
@@ -842,32 +848,32 @@ progessBar = ttk.Progressbar(
     root,
     style="progessBar.Horizontal.TProgressbar",
     orient="horizontal",
-    length=750,
+    length=530,
     mode="determinate",
     maximum=100,
     value=0,
 )
-progessBar.place(x=55, y=425)
+progessBar.place(x=10, y=105)
 
 
-# File List Title
-Label(
-    root,
-    text="File List",
-    bg="#C1CDCD",
-    font=(
-        "courier",
-        14,
-        "normal")).place(
-            x=375,
-    y=16)
+# # File List Title
+# Label(
+#     root,
+#     text="File List",
+#     bg="#C1CDCD",
+#     font=(
+#         "Helvetica",
+#         14,
+#         "normal")).place(
+#             x=375,
+#     y=15)
 
 
 # File List
 fileList = Listbox(
-    root, bg="#F0FFFF", font=("courier", 10, "normal"), width=55, height=22
+    root, bg="#bdc3c7", font=("Helvetica", 10, "normal"), width=75, height=41
 )
-fileList.place(x=375, y=40)
+fileList.place(x=10, y=130)
 
 
 def listbox_copy(event):
@@ -880,11 +886,11 @@ fileList.bind('<Double-Button-1>', listbox_copy)
 
 # VT-12 Phase List
 phaseList = Listbox(
-    root, bg="#F0FFFF", font=("courier", 10, "normal"), width=16, height=2
+    root,  bg="#bdc3c7", font=("Helvetica", 11, "normal"), width=15, height=2
 )
 phaseList.insert('0', 'Single-Phase CE')
 phaseList.insert('1', 'Three-Phase CE')
-phaseList.place(x=230, y=375)
+phaseList.place(x=195, y=15)
 
 checkFolders()
 
