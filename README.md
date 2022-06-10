@@ -37,17 +37,16 @@ Creating a new deck is simple, but can break if you give it the wrong files. Her
 
 ### Basic Guide
 1. Run GraphGrabber in its own folder.
-2. Click Init Folders to build the required folder structure (first run only).
+2. Click Yes to generate required folders
 3. Click Check Files to verify folders exist and are empty.
 4. Place PDF reports into their respective folders. (Use Open Working Directory to visit in a file explorer).
-5. Type desired output file name.
-6. Click Create Deck!
-7. Output file will be found in the working directory with a Unix timestamp
-8. Logfile is generated as GG.log in the working directory.
-9. You can clear out all files from GraphGrabber folders with the Clear Folders button. Warning: This deletes instantly!
+5. Click Create Deck!
+6. Output file will be found in the working directory with a Unix timestamp
+7. Logfile is generated as GG.log in the working directory.
+8. You can clear out all files from GraphGrabber folders with the Clear Folders button.
 
 ### Autosort
-1. First select whether you want to place VT-12 CE into the Single or Three Phase folder (Default Single).
+1. First select whether you want to place VT-12 CE reports into the Single or Three Phase folder (Default Single).
 2. Click Autosort
 3. Select the folder containing PDF reports
 4. Submit
