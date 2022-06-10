@@ -56,6 +56,12 @@ Creating a new deck is simple, but can break if you give it the wrong files. Her
 
 -------------------------------------------------------
 
+## Building from source
+
+Using [pyinstaller](https://pyinstaller.org/en/stable/usage.html) we can easily generate from source:
+
+    pyinstaller --clean -F -y -n "GraphGrabber" --add-data="emptyDeck.pptx;." GraphGrabber.py
+
 
 ## Guide to Functions etc.
 
