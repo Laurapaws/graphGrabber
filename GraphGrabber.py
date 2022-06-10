@@ -11,7 +11,7 @@ import tkinter as tk
 import time
 from io import BytesIO
 from tkinter import *
-from tkinter import filedialog, ttk, messagebox
+from tkinter import filedialog, ttk, simpledialog, messagebox
 
 import fitz
 import PIL.Image
@@ -19,8 +19,11 @@ import Pmw
 from pptx import Presentation
 from pptx.util import Pt
 
-logging.basicConfig(filename='GG.log', format='%(asctime)s %(message)s', encoding='utf-8', level=logging.INFO)
-#logging.basicConfig(filename='errors.log', format='%(asctime)s %(message)s', encoding='utf-8', level=logging.ERROR)
+logging.basicConfig(
+    filename='GG.log',
+    format='%(asctime)s %(message)s',
+    encoding='utf-8',
+    level=logging.INFO)
 
 posDict = {
     # Define coordinates for positioning. Format is test name then test type. e.g. a VT-07 test with a mediumwave plot
@@ -86,7 +89,8 @@ listCounter = 0
 cwd = os.getcwd()
 
 currentTime = time.time()
-logging.info('************************** Starting GraphGrabber! **************************')
+logging.info(
+    '************************** Starting GraphGrabber! **************************')
 
 
 def searchReplace(search_str, repl_str, input, output):
@@ -115,7 +119,12 @@ def extractImages(PDFName, imageFolder):
         page = doc.load_page(pageNo)  # number of page
         pix = page.get_pixmap(matrix=mat)
         extractedImages.append(pix)
-        logging.info("Converting " + fileName + " page " + str(pageNo) + " to Image")
+        logging.info(
+            "Converting " +
+            fileName +
+            " page " +
+            str(pageNo) +
+            " to Image")
 
 
 def cropGraph(targetImg, cropTuple, imName):
@@ -127,7 +136,8 @@ def cropGraph(targetImg, cropTuple, imName):
 
 
 def insertImage(oldFileName, newFileName, img, positionTuple, slideNumber):
-    # Inserts an image from the croppedImages array into slideNumber using a position from posDict
+    # Inserts an image from the croppedImages array into slideNumber using a
+    # position from posDict
     prs = Presentation(oldFileName)
     slide = prs.slides[slideNumber]
     left = positionTuple[0]
@@ -138,7 +148,11 @@ def insertImage(oldFileName, newFileName, img, positionTuple, slideNumber):
     img.save(temp, "PNG")
     slide.shapes.add_picture(temp, left, top, width, height)
     prs.save(newFileName)
-    logging.info("Image inserted with " + str(positionTuple) + " to " + str(slideNumber))
+    logging.info(
+        "Image inserted with " +
+        str(positionTuple) +
+        " to " +
+        str(slideNumber))
 
 
 def initialisePowerPoint(emptyDeckName, newDeckName):
@@ -171,21 +185,48 @@ def VT07(PDFName, folderName, slideNumber, deckName):
     cropGraph(extractedImages[3], cropDict["lowerOld"], "DAB2AV")
     cropGraph(extractedImages[4], cropDict["upperOld"], "DAB2RMS")
     deckName = deckName + ".pptx"
-    insertImage(deckName, deckName, croppedImages[0], posDict["VT07MW"], slideNumber)
-    insertImage(deckName, deckName, croppedImages[1], posDict["VT07FM1"], slideNumber)
-    insertImage(deckName, deckName, croppedImages[2], posDict["VT07FM2"], slideNumber)
     insertImage(
-        deckName, deckName, croppedImages[3], posDict["VT07DAB1AV"], slideNumber
-    )
+        deckName,
+        deckName,
+        croppedImages[0],
+        posDict["VT07MW"],
+        slideNumber)
     insertImage(
-        deckName, deckName, croppedImages[4], posDict["VT07DAB1RMS"], slideNumber
-    )
+        deckName,
+        deckName,
+        croppedImages[1],
+        posDict["VT07FM1"],
+        slideNumber)
     insertImage(
-        deckName, deckName, croppedImages[5], posDict["VT07DAB2AV"], slideNumber
-    )
+        deckName,
+        deckName,
+        croppedImages[2],
+        posDict["VT07FM2"],
+        slideNumber)
     insertImage(
-        deckName, deckName, croppedImages[6], posDict["VT07DAB2RMS"], slideNumber
-    )
+        deckName,
+        deckName,
+        croppedImages[3],
+        posDict["VT07DAB1AV"],
+        slideNumber)
+    insertImage(
+        deckName,
+        deckName,
+        croppedImages[4],
+        posDict["VT07DAB1RMS"],
+        slideNumber)
+    insertImage(
+        deckName,
+        deckName,
+        croppedImages[5],
+        posDict["VT07DAB2AV"],
+        slideNumber)
+    insertImage(
+        deckName,
+        deckName,
+        croppedImages[6],
+        posDict["VT07DAB2RMS"],
+        slideNumber)
     extractedImages.clear()
     croppedImages.clear()
     logging.info(">>>>>>>>>>>> Finished VT-07 for " + PDFName)
@@ -197,8 +238,11 @@ def VT01Three(PDFName, folderName, slideNumber, deckName):
     cropGraph(extractedImages[1], cropDict["lowerOld"], "VT01ThreeHorizontal")
     deckName = deckName + ".pptx"
     insertImage(
-        deckName, deckName, croppedImages[0], posDict["VT01ThreeVertical"], slideNumber
-    )
+        deckName,
+        deckName,
+        croppedImages[0],
+        posDict["VT01ThreeVertical"],
+        slideNumber)
     insertImage(
         deckName,
         deckName,
@@ -216,8 +260,18 @@ def VT12Single(PDFName, folderName, slideNumber, deckName):
     cropGraph(extractedImages[1], cropDict["upperOld"], "VT12SingleL1")
     cropGraph(extractedImages[1], cropDict["lowerOld"], "VT12SingleN")
     deckName = deckName + ".pptx"
-    insertImage(deckName, deckName, croppedImages[0], posDict["VT12SingleL1"], slideNumber)
-    insertImage(deckName, deckName, croppedImages[1], posDict["VT12SingleN"], slideNumber)
+    insertImage(
+        deckName,
+        deckName,
+        croppedImages[0],
+        posDict["VT12SingleL1"],
+        slideNumber)
+    insertImage(
+        deckName,
+        deckName,
+        croppedImages[1],
+        posDict["VT12SingleN"],
+        slideNumber)
     extractedImages.clear()
     croppedImages.clear()
     logging.info(">>>>>>>>>>>> Finished VT-12 Single Phase for " + PDFName)
@@ -231,17 +285,29 @@ def VT12Triple(PDFName, folderName, slideNumber, deckName):
     cropGraph(extractedImages[2], cropDict["lowerOld"], "VT12TripleN")
     deckName = deckName + ".pptx"
     insertImage(
-        deckName, deckName, croppedImages[0], posDict["VT12TripleL1"], slideNumber
-    )
+        deckName,
+        deckName,
+        croppedImages[0],
+        posDict["VT12TripleL1"],
+        slideNumber)
     insertImage(
-        deckName, deckName, croppedImages[1], posDict["VT12TripleL2"], slideNumber
-    )
+        deckName,
+        deckName,
+        croppedImages[1],
+        posDict["VT12TripleL2"],
+        slideNumber)
     insertImage(
-        deckName, deckName, croppedImages[2], posDict["VT12TripleL3"], slideNumber
-    )
+        deckName,
+        deckName,
+        croppedImages[2],
+        posDict["VT12TripleL3"],
+        slideNumber)
     insertImage(
-        deckName, deckName, croppedImages[3], posDict["VT12TripleN"], slideNumber
-    )
+        deckName,
+        deckName,
+        croppedImages[3],
+        posDict["VT12TripleN"],
+        slideNumber)
     extractedImages.clear()
     croppedImages.clear()
     logging.info(">>>>>>>>>>>>  VT-12 Three Phase for " + PDFName)
@@ -253,9 +319,24 @@ def VT15Electric(PDFName, folderName, slideNumber, deckName):
     cropGraph(extractedImages[1], cropDict["lowerOld"], "VT15E40")
     cropGraph(extractedImages[2], cropDict["upperOld"], "VT15E70")
     deckName = deckName + ".pptx"
-    insertImage(deckName, deckName, croppedImages[0], posDict["VT15E16"], slideNumber)
-    insertImage(deckName, deckName, croppedImages[1], posDict["VT15E40"], slideNumber)
-    insertImage(deckName, deckName, croppedImages[2], posDict["VT15E70"], slideNumber)
+    insertImage(
+        deckName,
+        deckName,
+        croppedImages[0],
+        posDict["VT15E16"],
+        slideNumber)
+    insertImage(
+        deckName,
+        deckName,
+        croppedImages[1],
+        posDict["VT15E40"],
+        slideNumber)
+    insertImage(
+        deckName,
+        deckName,
+        croppedImages[2],
+        posDict["VT15E70"],
+        slideNumber)
     extractedImages.clear()
     croppedImages.clear()
     logging.info(">>>>>>>>>>>> Finished VT-15 Electric Field for " + PDFName)
@@ -270,12 +351,42 @@ def VT15Magnetic(PDFName, folderName, slideNumber, deckName):
     cropGraph(extractedImages[3], cropDict["lowerOld"], "VT15HT40")
     cropGraph(extractedImages[4], cropDict["upperOld"], "VT15HT70")
     deckName = deckName + ".pptx"
-    insertImage(deckName, deckName, croppedImages[0], posDict["VT15HR16"], slideNumber)
-    insertImage(deckName, deckName, croppedImages[1], posDict["VT15HR40"], slideNumber)
-    insertImage(deckName, deckName, croppedImages[2], posDict["VT15HR70"], slideNumber)
-    insertImage(deckName, deckName, croppedImages[3], posDict["VT15HT16"], slideNumber)
-    insertImage(deckName, deckName, croppedImages[4], posDict["VT15HT40"], slideNumber)
-    insertImage(deckName, deckName, croppedImages[5], posDict["VT15HT70"], slideNumber)
+    insertImage(
+        deckName,
+        deckName,
+        croppedImages[0],
+        posDict["VT15HR16"],
+        slideNumber)
+    insertImage(
+        deckName,
+        deckName,
+        croppedImages[1],
+        posDict["VT15HR40"],
+        slideNumber)
+    insertImage(
+        deckName,
+        deckName,
+        croppedImages[2],
+        posDict["VT15HR70"],
+        slideNumber)
+    insertImage(
+        deckName,
+        deckName,
+        croppedImages[3],
+        posDict["VT15HT16"],
+        slideNumber)
+    insertImage(
+        deckName,
+        deckName,
+        croppedImages[4],
+        posDict["VT15HT40"],
+        slideNumber)
+    insertImage(
+        deckName,
+        deckName,
+        croppedImages[5],
+        posDict["VT15HT70"],
+        slideNumber)
     extractedImages.clear()
     croppedImages.clear()
     logging.info(">>>>>>>>>>>> Finished VT-15 Electric Field for " + PDFName)
@@ -296,7 +407,11 @@ def loopFolder(folderName, deckName, reportFunction):
     for file in os.listdir(directory):
         if file.endswith(".Pdf") or file.endswith(".pdf"):
             statusMessage = file + " | No Status"
-            logging.info("Working on slide " + str(slideCounter) + ", File Name: " + file)
+            logging.info(
+                "Working on slide " +
+                str(slideCounter) +
+                ", File Name: " +
+                file)
             try:
                 reportFunction(file, folderName, slideCounter, deckName)
                 searchString = "*" + str(slideCounter) + "*"
@@ -304,8 +419,10 @@ def loopFolder(folderName, deckName, reportFunction):
                     str(file)[:-4] + " | " + (nameDict[str(reportFunction.__name__)])
                 )
                 searchReplace(
-                    searchString, replaceString, deckName + ".pptx", deckName + ".pptx"
-                )
+                    searchString,
+                    replaceString,
+                    deckName + ".pptx",
+                    deckName + ".pptx")
                 slideCounter = slideCounter + 1
                 statusMessage = file + " | Added to slide " + str(slideCounter)
             except Exception as e:
@@ -334,6 +451,7 @@ def btnInitialisePowerPoint():
 def btnInitialiseFolders():
 
     logging.info("Creating Directories")
+
     def checkCreateDir(dir):
         if os.path.isdir(dir):
             logging.warning(dir + ' already exists')
@@ -349,9 +467,17 @@ def btnInitialiseFolders():
     checkCreateDir("VT-15 Magnetic")
     checkCreateDir("Unsorted PDFs")
 
+
 def checkFolders():
 
-    dirs = ['Unsorted PDFs','VT-01 3m','VT-07','VT-12 Single Phase','VT-12 Three Phase','VT-15 Electric','VT-15 Magnetic']
+    dirs = [
+        'Unsorted PDFs',
+        'VT-01 3m',
+        'VT-07',
+        'VT-12 Single Phase',
+        'VT-12 Three Phase',
+        'VT-15 Electric',
+        'VT-15 Magnetic']
     missingDirs = []
 
     def checkCreateDir(dir):
@@ -360,28 +486,43 @@ def checkFolders():
         else:
             os.mkdir(dir)
             logging.info('CREATED ' + dir)
-   
 
     for dir in dirs:
         if os.path.isdir(dir):
             logging.info(dir + " already exists")
         else:
             missingDirs.append(dir)
-    
+
     logging.info('Missing Directories: ' + str(missingDirs))
 
     if len(missingDirs) > 0:
-        checkFolderMsg = tk.messagebox.askquestion ('Missing Directories',"Some folders required for GraphGrabber are missing, do you want to create them now?", icon = 'warning')
-        
+        checkFolderMsg = tk.messagebox.askquestion(
+            'Missing Directories',
+            "Some folders required for GraphGrabber are missing, do you want to create them now?",
+            icon='warning')
+
         if checkFolderMsg == 'yes':
             logging.info("User clicked Yes: Attempting to create directories")
             for dir in missingDirs:
                 checkCreateDir(dir)
-            tk.messagebox.showinfo('Successfully Created Folders!', 'Created the following directories:' + "\n\n" +"\n".join(missingDirs))
+            tk.messagebox.showinfo(
+                'Successfully Created Folders!',
+                'Created the following directories:' +
+                "\n\n" +
+                "\n".join(missingDirs))
         else:
             logging.info("User clicked No: Not creating directories")
 
-   
+
+def askForOutput():
+    askPopup = simpledialog.askstring(
+        "Output File Name",
+        "Please name your output PowerPoint",
+        parent=root)
+    askPopup = re.sub('[^A-Za-z0-9 ]+', '', askPopup)
+    print(askPopup)
+    return askPopup
+
 
 def btnClearFolders():
 
@@ -396,7 +537,10 @@ def btnClearFolders():
             delList.append(f)
 
     def confirmDel():
-        MsgBox = tk.messagebox.askquestion ('PDF Deletion',"This will delete all files in GraphGrabber's folders: VT-01, VT-07, VT-12, VT-15, Unsorted PDFs", icon = 'warning')
+        MsgBox = tk.messagebox.askquestion(
+            'PDF Deletion',
+            "This will delete all files in GraphGrabber's folders: VT-01, VT-07, VT-12, VT-15, Unsorted PDFs",
+            icon='warning')
         if MsgBox == 'yes':
             logging.info("User clicked Yes: Beginning file deletion")
             deleteInFolder("VT-01 3m")
@@ -408,7 +552,9 @@ def btnClearFolders():
             deleteInFolder("Unsorted PDFs")
             print(delList)
 
-            tk.messagebox.showinfo('File Deletion Complete', "\n".join(delList))
+            tk.messagebox.showinfo(
+                'File Deletion Complete',
+                "\n".join(delList))
 
             logging.info("File deletion completed")
 
@@ -417,11 +563,6 @@ def btnClearFolders():
             logging.info("User clicked No: Beginning file deletion")
 
     confirmDel()
-    
-    
-    
-
-    
 
 
 def btnVisitFolders():
@@ -434,21 +575,6 @@ def btnVisitFolders():
         subprocess.Popen(["open", path])
     else:
         subprocess.Popen(["xdg-open", path])
-
-
-# this is a function to get the user input from the text input box
-def getInputBoxValue():
-    userInput = outputName.get()
-    return userInput
-
-
-  
-
-
-
-  
-
-
 
 
 def btnCheckFiles():
@@ -487,10 +613,6 @@ def btnCheckFiles():
     progessBar["value"] = 0
     progessBar["maximum"] = listCounter - 6
 
-   
-
-    
-
 
 def btnGO():
     try:
@@ -500,7 +622,7 @@ def btnGO():
         setSlideCounter(0)
         global listCounter
         listCounter = 0
-        outputFileName = getInputBoxValue()
+        outputFileName = askForOutput()
         outputFileName = f"{outputFileName} {time.time():.0f}"
         logging.info('Creating file: ' + outputFileName)
         initialisePowerPoint("emptyDeck", outputFileName)
@@ -514,6 +636,7 @@ def btnGO():
     except Exception as e:
         logging.info('Failed to create deck (no folders?) ' + str(e))
 
+
 def btnAutoSort():
     logging.info('Auto Sort Clicked')
 
@@ -526,9 +649,8 @@ def btnAutoSort():
         else:
             ceStatus = 1
             logging.info(str(ceStatus) + ' phase')
-    except:
+    except BaseException:
         logging.info('Defaulting to single phase')
-
 
     def regexCopy(file, dir, destination):
         fileToCopy = dir + '/' + file
@@ -536,21 +658,21 @@ def btnAutoSort():
         logging.info('COPIED to ' + destination + ': ' + fileToCopy)
 
     try:
-        dir = filedialog.askdirectory() # Returns opened path as str
+        dir = filedialog.askdirectory()  # Returns opened path as str
 
         for file in os.listdir(dir):
             if file.endswith(".Pdf") or file.endswith(".pdf"):
-                if re.search('REESS',file,flags=re.I):
+                if re.search('REESS', file, flags=re.I):
                     regexCopy(file, dir, 'VT-01 3m')
-                elif re.search('NB',file,flags=re.I):
+                elif re.search('NB', file, flags=re.I):
                     regexCopy(file, dir, 'VT-01 3m')
-                elif re.search('BB',file,flags=re.I):
+                elif re.search('BB', file, flags=re.I):
                     regexCopy(file, dir, 'VT-01 3m')
-                elif re.search('e.field',file,flags=re.I):
+                elif re.search('e.field', file, flags=re.I):
                     regexCopy(file, dir, 'VT-15 Electric')
-                elif re.search('H.Field',file,flags=re.I):
+                elif re.search('H.Field', file, flags=re.I):
                     regexCopy(file, dir, 'VT-15 Magnetic')
-                elif re.search('(?<!i)(?<!n)CE',file,flags=re.I):
+                elif re.search('(?<!i)(?<!n)CE', file, flags=re.I):
                     if ceStatus == 1:
                         regexCopy(file, dir, 'VT-12 Single Phase')
                     else:
@@ -563,9 +685,8 @@ def btnAutoSort():
     btnCheckFiles()
 
 
-
-
-# This is a function which increases the progress bar value by the given increment amount
+# This is a function which increases the progress bar value by the given
+# increment amount
 def makeProgress():
     progessBar["value"] = progessBar["value"] + 1
     root.update_idletasks()
@@ -577,6 +698,8 @@ def getfileListValue():
     return itemSelected
 
 # this is a function to get the phaseList list box value
+
+
 def getphaseListValue():
     itemSelected = phaseList.curselection()
     return itemSelected
@@ -612,7 +735,9 @@ Pmw.initialise(root)
 # wgtInitFolders.place(x=39, y=86)
 
 # tipName = Pmw.Balloon(root)
-# tipName.bind(wgtInitFolders,'Will create a folder structure required for use by GraphGrabber in the current working directory\nDo not rename these folders\nWill not create them if they already exist')
+# tipName.bind(wgtInitFolders,'''Will create a folder structure required for use by GraphGrabber in the current working directory
+# Do not rename these folders
+# Will not create them if they already exist'''')
 
 # Clear Folders Button
 wgtClearFolders = Button(
@@ -625,7 +750,10 @@ wgtClearFolders = Button(
 wgtClearFolders.place(x=39, y=15)
 
 tipName = Pmw.Balloon(root)
-tipName.bind(wgtClearFolders,'This will delete everything in the folders created by GraphGrabber\nDo not have anything stored in here that you want to keep!')
+tipName.bind(
+    wgtClearFolders,
+    '''This will delete everything in the folders created by GraphGrabber
+    Do not have anything stored in here that you want to keep!''')
 
 # Directory Label
 Label(
@@ -648,17 +776,11 @@ wgtVisitFolders = Button(
 wgtVisitFolders.place(x=39, y=110)
 
 tipName = Pmw.Balloon(root)
-tipName.bind(wgtVisitFolders,'This will open the current working directory as displayed above.\nBy default this is the folder where GraphGrabber.exe lives\nMove the .exe somewhere else to change this folder.')
-
-# Entry Label
-Label(
-    root, text="Output File Name", bg="#C1CDCD", font=("courier", 14, "normal")
-).place(x=39, y=275)
-
-# Entry Box
-outputName = Entry(root, width=35, relief=tk.FLAT)
-outputName.place(x=39, y=300)
-
+tipName.bind(
+    wgtVisitFolders,
+    '''This will open the current working directory as displayed above.
+    By default this is the folder where GraphGrabber.exe lives
+    Move the .exe somewhere else to change this folder.''')
 
 # Check Files Button
 wgtCheckFiles = Button(
@@ -671,7 +793,11 @@ wgtCheckFiles = Button(
 wgtCheckFiles.place(x=39, y=330)
 
 tipName = Pmw.Balloon(root)
-tipName.bind(wgtCheckFiles,'This will scan through the current directory\nUse it to check that you have all files in the right places\nNeeds the folder structure created with the Initialise Folders button')
+tipName.bind(
+    wgtCheckFiles,
+    '''This will scan through the current directory
+    Use it to check that you have all files in the right places
+    Needs the folder structure created with the Initialise Folders button''')
 
 # Auto Sort Button
 wgtAutoSort = Button(
@@ -684,7 +810,10 @@ wgtAutoSort = Button(
 wgtAutoSort.place(x=240, y=335)
 
 tipAutoSort = Pmw.Balloon(root)
-tipAutoSort.bind(wgtAutoSort, 'Select the folder containing report PDFs and Graph Grabber will attempt to sort into folders for you\nUnsorted files will go into the Unsorted PDFs folder\nSelect single or three phase below for conducted emissions')
+tipAutoSort.bind(wgtAutoSort, '''Select the folder containing report PDFs
+Graph Grabber will attempt to sort them into its folders for you
+Unsorted files will go into the Unsorted PDFs folder
+Select single or three phase below for conducted emissions''')
 
 # Create Deck Button
 wgtGO = Button(
@@ -697,14 +826,18 @@ wgtGO = Button(
 wgtGO.place(x=39, y=380)
 
 tipGO = Pmw.Balloon(root)
-tipGO.bind(wgtGO, 'Starts creating the Powerpoint\nFIle name will be your output with the Unix epoch\nPress Initialise Folders to create the right folder structure\nPress Check Files so you know what the program will operate on')
+tipGO.bind(wgtGO, '''Starts creating the Powerpoint
+FIle name will be your output with the Unix epoch
+Press Initialise Folders to create the right folder structure
+Press Check Files so you know what the program will operate on''')
 
 # Progress Bar
 progessBar_style = ttk.Style()
 progessBar_style.theme_use("clam")
 progessBar_style.configure(
-    "progessBar.Horizontal.TProgressbar", foreground="#00CD00", background="#00CD00"
-)
+    "progessBar.Horizontal.TProgressbar",
+    foreground="#00CD00",
+    background="#00CD00")
 progessBar = ttk.Progressbar(
     root,
     style="progessBar.Horizontal.TProgressbar",
@@ -718,9 +851,16 @@ progessBar.place(x=55, y=425)
 
 
 # File List Title
-Label(root, text="File List", bg="#C1CDCD", font=("courier", 14, "normal")).place(
-    x=375, y=16
-)
+Label(
+    root,
+    text="File List",
+    bg="#C1CDCD",
+    font=(
+        "courier",
+        14,
+        "normal")).place(
+            x=375,
+    y=16)
 
 
 # File List
@@ -729,10 +869,12 @@ fileList = Listbox(
 )
 fileList.place(x=375, y=40)
 
+
 def listbox_copy(event):
     root.clipboard_clear()
     selected = fileList.get(ANCHOR)
     root.clipboard_append(selected)
+
 
 fileList.bind('<Double-Button-1>', listbox_copy)
 
@@ -749,4 +891,5 @@ checkFolders()
 root.mainloop()
 
 
-logging.info("************************** Window Closing... **************************")
+logging.info(
+    "************************** Window Closing... **************************")
