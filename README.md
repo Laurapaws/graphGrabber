@@ -62,6 +62,7 @@ Using [pyinstaller](https://pyinstaller.org/en/stable/usage.html) we can easily 
 
     pyinstaller --clean -F -y -n "GraphGrabber" --add-data="emptyDeck.pptx;." GraphGrabber.py
 
+---
 
 ## Guide to Functions etc.
 
