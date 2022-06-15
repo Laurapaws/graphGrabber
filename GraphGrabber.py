@@ -102,15 +102,16 @@ logging.info('************************** Starting GraphGrabber! ****************
 def searchReplace(search_str, repl_str, input, output):
     # Attempts to search and replace on the entire file. Likely needs rewriting to be more robust and not need a template
     # From Stackoverflow
+    # The template uses lots of numbers called *1*, *2*... - The function uses these to determine what it should replace
     prs = Presentation(input)
-    for slide in prs.slides:
-        for shape in slide.shapes:
-            if shape.has_text_frame:
+    for slide in prs.slides: # Check in all slides
+        for shape in slide.shapes: # Loop objects on slide
+            if shape.has_text_frame: # ...Looking for one that contains text
                 if (shape.text.find(search_str)) != -1:
                     text_frame = shape.text_frame
                     cur_text = text_frame.paragraphs[0].runs[0].text
-                    new_text = cur_text.replace(str(search_str), str(repl_str))
-                    text_frame.paragraphs[0].runs[0].text = new_text
+                    new_text = cur_text.replace(str(search_str), str(repl_str)) # Replace what it found with repl_str
+                    text_frame.paragraphs[0].runs[0].text = new_text # Honestly, no idea what this line does
     prs.save(output)
     logging.info(search_str + " replaced with " + repl_str)
 
@@ -168,7 +169,7 @@ def initialisePowerPoint(emptyDeckName, newDeckName):
 
     def resource_path(relative_path):
         try:
-            base_path = sys._MEIPASS
+            base_path = sys._MEIPASS # Look for the template inside the .exe (lives in temp dir that we can find with this line)
         except Exception:
             base_path = os.path.abspath(".")
 
@@ -176,16 +177,17 @@ def initialisePowerPoint(emptyDeckName, newDeckName):
 
     emptyDeckName = resource_path(emptyDeckName)
 
-    emptyDeckName = emptyDeckName + ".pptx"
+    emptyDeckName = emptyDeckName + ".pptx" # Hardcoding the extension saves us from having to define it anywhere else (and is lazy)
     newDeckName = newDeckName + ".pptx"
-    prs = Presentation(emptyDeckName)
-    prs.save(newDeckName)
+    prs = Presentation(emptyDeckName) # Open the template
+    prs.save(newDeckName) # Save it with a new name
     logging.info("Created new PowerPoint: " + newDeckName)
 
-
+# The first of several hardcoded functions for handling EMC test reports
+# Works by extracting all images then cropping them in a specific way depending on the function
 def VT07(PDFName, folderName, slideNumber, deckName):
-    extractImages(PDFName, folderName)
-    cropGraph(extractedImages[1], cropDict["upperOld"], "MW")
+    extractImages(PDFName, folderName) # Turn each page into an image
+    cropGraph(extractedImages[1], cropDict["upperOld"], "MW") # Crop each page in very specific ways and store in a new list
     cropGraph(extractedImages[1], cropDict["lowerOld"], "FM1")
     cropGraph(extractedImages[2], cropDict["upperOld"], "FM2")
     cropGraph(extractedImages[2], cropDict["lowerOld"], "DAB1AV")
@@ -198,7 +200,7 @@ def VT07(PDFName, folderName, slideNumber, deckName):
         deckName,
         croppedImages[0],
         posDict["VT07MW"],
-        slideNumber)
+        slideNumber) # Insert all images into their specific locations on the slide
     insertImage(
         deckName,
         deckName,
@@ -235,11 +237,11 @@ def VT07(PDFName, folderName, slideNumber, deckName):
         croppedImages[6],
         posDict["VT07DAB2RMS"],
         slideNumber)
-    extractedImages.clear()
+    extractedImages.clear() # Clear both lists
     croppedImages.clear()
     logging.info(">>>>>>>>>>>> Finished VT-07 for " + PDFName)
 
-
+# The following set of functions are similar with different crops and insertion positions
 def VT01Three(PDFName, folderName, slideNumber, deckName):
     extractImages(PDFName, folderName)
     cropGraph(extractedImages[1], cropDict["upperOld"], "VT01ThreeVertical")
@@ -399,30 +401,31 @@ def VT15Magnetic(PDFName, folderName, slideNumber, deckName):
     croppedImages.clear()
     logging.info(">>>>>>>>>>>> Finished VT-15 Electric Field for " + PDFName)
 
-
+# This just sets the slide counter globally
 def setSlideCounter(num):
     global slideCounter
     slideCounter = num
     logging.info("Slide counter set to " + str(slideCounter))
 
-
+# The function responsible for calling other functions (i.e. VT07())
+# The parameter reportFunction is used to determine which function it will run
 def loopFolder(folderName, deckName, reportFunction):
 
-    directory = folderName
-    global slideCounter
+    directory = folderName # Set dir to current folder we are working on
+    global slideCounter # Initialise global variables
     global listCounter
-    listCounter = listCounter + 1
+    listCounter = listCounter + 1 #+1 to listCounter so that it skips the header in the GUI listBox
     for file in os.listdir(directory):
-        if file.lower().endswith(".pdf"):
-            statusMessage = file + " | No Status"
+        if file.lower().endswith(".pdf"): # Only work on PDFs
+            statusMessage = file + " | No Status" # Prepare default status message
             logging.info(
                 "Working on slide " +
                 str(slideCounter) +
                 ", File Name: " +
                 file)
             try:
-                reportFunction(file, folderName, slideCounter, deckName)
-                searchString = "*" + str(slideCounter) + "*"
+                reportFunction(file, folderName, slideCounter, deckName) # reportFunction() here depends on what you have supplied, e.g. VT07
+                searchString = "*" + str(slideCounter) + "*" # Find and replace the title with the file name
                 replaceString = (
                     str(file)[:-4] + " | " + (nameDict[str(reportFunction.__name__)])
                 )
@@ -432,15 +435,15 @@ def loopFolder(folderName, deckName, reportFunction):
                     deckName + ".pptx",
                     deckName + ".pptx")
                 slideCounter = slideCounter + 1
-                statusMessage = file + " | Added to slide " + str(slideCounter)
+                statusMessage = file + " | Added to slide " + str(slideCounter) # Prepare a status message for the GUI
             except Exception as e:
                 statusMessage = file + " | ERROR " + str(e)
                 logging.error(e)
-            fileList.delete(listCounter)
-            fileList.insert(listCounter, statusMessage)
+            fileList.delete(listCounter) # Remove item from GUI listbox
+            fileList.insert(listCounter, statusMessage) # Add in new message with file name and status message
             listCounter = listCounter + 1
-            makeProgress()
-            root.update()
+            makeProgress() # Update the progress bar
+            root.update() # Ensures that the window doesn't feel like it has frozen by updating idle tasks
 
     logging.info(">>>>>>>>>>>> Finished with folder: " + folderName)
 
@@ -450,24 +453,24 @@ def getListboxValue():
     itemSelected = fileList.curselection()
     return itemSelected
 
-
+# Deprecated button for initialising PowerPoint
 def btnInitialisePowerPoint():
     logging.info("Init PP clicked")
     initialisePowerPoint("emptyDeck", "newDeck")
 
-
+# Create the required folder structure for the hardcoded functions
 def btnInitialiseFolders():
 
     logging.info("Creating Directories")
 
-    def checkCreateDir(dir):
+    def checkCreateDir(dir): # Simple function for checking and making directories
         if os.path.isdir(dir):
             logging.warning(dir + ' already exists')
         else:
             os.mkdir(dir)
             logging.info('CREATED ' + dir)
 
-    checkCreateDir("VT-01 3m")
+    checkCreateDir("VT-01 3m") # Run the above func for each folder
     checkCreateDir("VT-07")
     checkCreateDir("VT-12 Single Phase")
     checkCreateDir("VT-12 Three Phase")
@@ -475,7 +478,7 @@ def btnInitialiseFolders():
     checkCreateDir("VT-15 Magnetic")
     checkCreateDir("Unsorted PDFs")
 
-
+# Adds in checks and a prompt for the user to create the required folders instead of doing it silently
 def checkFolders():
 
     dirs = [
@@ -486,7 +489,7 @@ def checkFolders():
         'VT-12 Three Phase',
         'VT-15 Electric',
         'VT-15 Magnetic']
-    missingDirs = []
+    missingDirs = [] # Should remain empty if all folders exist
 
     def checkCreateDir(dir):
         if os.path.isdir(dir):
@@ -503,7 +506,8 @@ def checkFolders():
 
     logging.info('Missing Directories: ' + str(missingDirs))
 
-    if len(missingDirs) > 0:
+    if len(missingDirs) > 0: # If any of the folders are missing then ask...
+
         checkFolderMsg = tk.messagebox.askquestion(
             'Missing Directories',
             "Some folders required for GraphGrabber are missing, do you want to create them now?",
@@ -521,17 +525,16 @@ def checkFolders():
         else:
             logging.info("User clicked No: Not creating directories")
 
-
+# A function that will ask for the file name users want
 def askForOutput():
     askPopup = simpledialog.askstring(
         "Output File Name",
         "Please name your output PowerPoint",
         parent=root)
-    askPopup = re.sub('[^A-Za-z0-9 ]+', '', askPopup)
-    print(askPopup)
+    askPopup = re.sub('[^A-Za-z0-9 ]+', '', askPopup) # Remote all special characters
     return askPopup
 
-
+# Deletes ALL files in GraphGrabber's folders
 def btnClearFolders():
 
     delList = ['Deleted the following files:']
@@ -541,13 +544,13 @@ def btnClearFolders():
         files = glob.glob(dir)
         for f in files:
             os.remove(f)
-            logging.info("DELETED " + str(f))
-            delList.append(f)
+            logging.info("DELETED " + str(f)) # Log each deleted file
+            delList.append(f) # Add to list of deleted files
 
     def confirmDel():
         MsgBox = tk.messagebox.askquestion(
             'PDF Deletion',
-            "This will delete all files in GraphGrabber's folders: VT-01, VT-07, VT-12, VT-15, Unsorted PDFs",
+            "This will delete all files in GraphGrabber's folders:\n VT-01\nVT-07\nVT-12\nVT-15\nUnsorted PDFs\n\nAre you sure?",
             icon='warning')
         if MsgBox == 'yes':
             logging.info("User clicked Yes: Beginning file deletion")
@@ -572,19 +575,19 @@ def btnClearFolders():
 
     confirmDel()
 
-
+# Just opens the current working directory. Differs based on OS
 def btnVisitFolders():
     checkFolders()
     path = os.getcwd()
     logging.info("Visiting working directory: " + path)
-    if platform.system() == "Windows":
+    if platform.system() == "Windows": # Windows, obviously
         os.startfile(path)
-    elif platform.system() == "Darwin":
+    elif platform.system() == "Darwin": # Mac
         subprocess.Popen(["open", path])
-    else:
+    else: # Other Unix
         subprocess.Popen(["xdg-open", path])
 
-
+# A function for showing the PDF files in a GUI
 def btnCheckFiles():
     logging.info("Checking Files and displaying to user")
 
@@ -592,48 +595,49 @@ def btnCheckFiles():
 
     global listCounter
 
+    # This function just loops files in a directory and adds them to the tkinter fileList
     def loopInsertList(dir):
         global listCounter
 
-        sectionBreak = "*********** " + dir + " *********** "
+        sectionBreak = "*********** " + dir + " *********** " # A section break in the GUI
         fileList.insert(listCounter, sectionBreak)
         listCounter = listCounter + 1
         localCounter = 0
         for file in os.listdir(dir):
             if file.lower().endswith(".pdf"):
                 fileList.insert(listCounter, file)
-                localCounter = localCounter + 1
-                listCounter = listCounter + 1
+                localCounter = localCounter + 1 # Local counter counts the files per folder
+                listCounter = listCounter + 1 # List counts the entire list including headers
 
-        headerPos = listCounter - localCounter - 1
-        sectionBreak = sectionBreak + "(" + str(localCounter) + " files)"
+        headerPos = listCounter - localCounter - 1 # Find where the current section header is
+        sectionBreak = sectionBreak + "(" + str(localCounter) + " files)" # Add file count onto section break
         fileList.delete(headerPos)
-        fileList.insert(headerPos, sectionBreak)
+        fileList.insert(headerPos, sectionBreak) # Delete and insert the sectionBreak text into the header index number
 
-    fileList.delete(0, tk.END)
-    listCounter = 0
-    loopInsertList("VT-01 3m")
+    fileList.delete(0, tk.END) # Clear out the GUI file list
+    listCounter = 0 # Reset the listCounter
+    loopInsertList("VT-01 3m") # Perform the above function for each folder we need to operate on
     loopInsertList("VT-07")
     loopInsertList("VT-12 Single Phase")
     loopInsertList("VT-12 Three Phase")
     loopInsertList("VT-15 Electric")
     loopInsertList("VT-15 Magnetic")
-    progessBar["value"] = 0
+    progessBar["value"] = 0 # Reset the progress bar to zero and set its max value
     progessBar["maximum"] = listCounter - 6
 
-
+# Main function for running the graph formatter. Primarily uses loopFolder()
 def btnGO():
     try:
-        checkFolders()
+        checkFolders() # Check that the right folders exist
         logging.info("STARTING JOBS")
-        btnCheckFiles()
-        setSlideCounter(0)
+        btnCheckFiles() # Display the files to the user (Need a nice clean list)
+        setSlideCounter(0) # Reset the slideCounter and listCounter below
         global listCounter
         listCounter = 0
         outputFileName = askForOutput()
-        outputFileName = f"{outputFileName} {time.time():.0f}"
+        outputFileName = f"{outputFileName} {time.time():.0f}" # Ask user for name for output name. Append unix timestamp
         logging.info('Creating file: ' + outputFileName)
-        initialisePowerPoint("emptyDeck", outputFileName)
+        initialisePowerPoint("emptyDeck", outputFileName) # Prep the initial PowerPoint from template
         loopFolder("VT-01 3m", outputFileName, VT01Three)
         loopFolder("VT-07", outputFileName, VT07)
         loopFolder("VT-12 Single Phase", outputFileName, VT12Single)
@@ -641,17 +645,21 @@ def btnGO():
         loopFolder("VT-15 Electric", outputFileName, VT15Electric)
         loopFolder("VT-15 Magnetic", outputFileName, VT15Magnetic)
         logging.info('>>>>>>>>>>>> JOBS FINISHED')
+        tk.messagebox.showinfo(
+                'PowerPoint Created',
+                'Created ' + outputFileName) # Friendly info box to say its complete
     except Exception as e:
         logging.info('Failed to create deck (no folders?) ' + str(e))
+        tk.messagebox.showerror("Error", "Failed to create PowerPoint. Exception has been logged in GG.log") # Error message on failure. Logs to GG.log
 
-
+# Automatic sorting of files from any folder the user chooses.
 def btnAutoSort():
     logging.info('Auto Sort Clicked')
 
-    ceStatus = 1
+    ceStatus = 1 # Default value for conducted emissions tests is set to single phase
 
     try:
-        if getphaseListValue()[0] == 1:
+        if getphaseListValue()[0] == 1: # Check if the user has selected single or three phase to sort
             ceStatus = 3
             logging.info(str(ceStatus) + ' phase')
         else:
@@ -659,8 +667,9 @@ def btnAutoSort():
             logging.info(str(ceStatus) + ' phase')
     except BaseException:
         logging.info('Defaulting to single phase')
+        # Needs rewriting as a message to ask user (only if VT12 exists)
 
-    def regexCopy(file, dir, destination):
+    def regexCopy(file, dir, destination): # Copies the file specified later
         fileToCopy = dir + '/' + file
         shutil.copy(fileToCopy, destination)
         logging.info('COPIED to ' + destination + ': ' + fileToCopy)
@@ -670,7 +679,7 @@ def btnAutoSort():
 
         for file in os.listdir(dir):
             if file.lower().endswith(".pdf"):
-                if re.search('REESS', file, flags=re.I):
+                if re.search('REESS', file, flags=re.I):# Attempt to sort PDFs into folders based on names
                     regexCopy(file, dir, 'VT-01 3m')
                 elif re.search('NB', file, flags=re.I):
                     regexCopy(file, dir, 'VT-01 3m')
@@ -701,28 +710,26 @@ def makeProgress():
 
 
 # this is a function to get the fileList list box value
+# fileList is the main GUI box that shows the PDFs being worked on
 def getfileListValue():
     itemSelected = fileList.curselection()
     return itemSelected
 
 # this is a function to get the phaseList list box value
-
-
+# phaseList is the box for conducted emissions autoselect sorting
 def getphaseListValue():
     itemSelected = phaseList.curselection()
     return itemSelected
 
 
 root = tk.Tk()
-
-
-# This is the section of code which creates the main window
+# Create the main window
 root.geometry("550x850")
 root.configure(background="#34495e")
 root.title("GraphGrabber v1")
+root.iconbitmap('ICOLogo.ico')
 
-
-
+# Initialise Python Megawidgets
 Pmw.initialise(root)
 
 # Clear Folders Button
@@ -734,7 +741,7 @@ wgtClearFolders = Button(
     font=("Helvetica", 13, "normal"),
     command=btnClearFolders,
 )
-wgtClearFolders.place(x=475, y=10)
+wgtClearFolders.place(x=475, y=10) # Split into multiple parts to allow it to be referenced later for the tooltip
 
 tipName = Pmw.Balloon(root)
 tipName.bind(
@@ -742,7 +749,7 @@ tipName.bind(
     '''This will delete everything in the folders created by GraphGrabber
 Do not have anything stored in here that you want to keep!''')
 
-# Directory Label
+# Current Working Directory Label
 Label(
     root,
     text=cwd,
@@ -754,7 +761,7 @@ Label(
 ).place(x=10, y=64)
 
 
-# Go to Directory Button
+# Go to Current Working Directory Button
 wgtVisitFolders = Button(
     root,
     text="Open Working\nDirectory",
@@ -849,12 +856,11 @@ fileList = Listbox(
 )
 fileList.place(x=10, y=130)
 
-
+# Double click on the listbox to copy that entry
 def listbox_copy(event):
     root.clipboard_clear()
     selected = fileList.get(ANCHOR)
     root.clipboard_append(selected)
-
 
 fileList.bind('<Double-Button-1>', listbox_copy)
 
@@ -866,8 +872,10 @@ phaseList.insert('0', 'Single-Phase CE')
 phaseList.insert('1', 'Three-Phase CE')
 phaseList.place(x=195, y=15)
 
+# Run folder check on startup
 checkFolders()
 
+# Run tkinter window
 root.mainloop()
 
 
