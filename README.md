@@ -5,10 +5,7 @@
     | |_\ \ | | (_| | |_) | | | | |_\ \ | | (_| | |_) | |_) |  __/ |   
      \____/_|  \__,_| .__/|_| |_|\____/_|  \__,_|_.__/|_.__/ \___|_|   
                     | |                                                
-                    |_|          Laura Moore (LMOORE12) - 2022                           
-
-
-
+                    |_|          Laura Moore (LMOORE12) - 2022         
 
 ## Description
 
@@ -20,7 +17,8 @@ Currently supports VT-01 (2 images), VT-07 (7 images), VT-12 (2 or 4 images), VT
 
 Contains a copy of Pmw.py due to Python Megawidgets failing to import properly.
 
-When running from sour
+When running from source you may need to import python-pptx and PyMuPDF yourself:
+    pip install python-pptx PyMuPDF
 
 **Tkinter** is used to build the GUI, **PyMuPDF** handles PDF documents alongside **Pillow**, and **python-pptx** is used for operations on the PowerPoint files.
 
@@ -29,15 +27,14 @@ Win11\
 Win10\
 MacOS Big Sur (M1 Native)
 
-
 -------------------------------------------------------
-
 
 ## User Guide
 
 Creating a new deck is simple, but can break if you give it the wrong files. Here's a simple set of instructions:
 
 ### Basic Guide
+
 1. Run GraphGrabber in its own folder.
 2. Click Yes to generate required folders
 3. Click Check Files to verify folders exist and are empty.
@@ -48,13 +45,13 @@ Creating a new deck is simple, but can break if you give it the wrong files. Her
 8. You can clear out all files from GraphGrabber folders with the Clear Folders button.
 
 ### Autosort
+
 1. First select whether you want to place VT-12 CE reports into the Single or Three Phase folder (Default Single).
 2. Click Autosort
 3. Select the folder containing PDF reports
 4. Submit
 5. Autosort will attempt to place files into the right folders depending on their file name. Please check them!
 6. Unsorted files will go into the Unsorted PDFs folder.
-
 
 -------------------------------------------------------
 
@@ -70,14 +67,13 @@ Running from source may require manual installation of python-pptx and PyMuPDF:
 
 ---
 
-## Guide to Functions etc.
-
+## Guide to Functions etc
 
 **posDict**
 
 Coordinates that determine where an image will be placed on the slide. Not pixels\
 Tuple Order: Dist from Left , Dist from Top, Img Width, Img Height
-    
+
 **Example:** *"VT07MW": (Pt(1), Pt(70), Pt(233), Pt(176))*
 
 ---
@@ -236,6 +232,20 @@ Unsorted PDFs*
 
 ---
 
+**checkFolders()**
+
+This is a folder check that is ran in multiple places including on startup and if a user tries to click a button that needs GraphGrabber's folders. It throws up a message asking the user whether they want to create folders or not.
+
+---
+
+**askForOutput()**
+
+Simply a popup that will ask the user to enter their desired file name. Will remove special characters with the following regex expression:
+
+    '[^A-Za-z0-9 ]+'
+
+---
+
 **btnClearFolders()**
 
 Deletes every file using os.remove() in the folders created by btnInitialiseFolders(). Will not ask for confirmation. Deleted files are logged in GG.log
@@ -264,32 +274,24 @@ A surprisingly complex function that creates its own function: **loopInsertList(
 
 Will clear fileList and set listCounter to 0 before running **loopInsertList()** for each dir.
 
-**loopInsertDir()** will loop through each file and add it to the fileList GUI object. Between sections it will insert asterixes with the directory name. localCounter and listCounter are two integers used here. localCounter will count the files per directory and listCounter keeps track of the total number of files checked so far. This is used to properly find the locations of files and headers so that they can be deleted or edited to update the user.
+**loopInsertList()** will loop through each file and add it to the fileList GUI object. Between sections it will insert asterixes with the directory name. localCounter and listCounter are two integers used here. localCounter will count the files per directory and listCounter keeps track of the total number of files checked so far. This is used to properly find the locations of files and headers so that they can be deleted or edited to update the user.
+
+**Example:** *loopInsertList("VT-07")*
 
 Finally sets the progressBar value to 0 and maximum to the total file count (currently hardcoded as listCounter-6).
 
 ---
 
+**btnGO()**
 
+Will check that the folders exist, display files to user, initialise the PowerPoint, then loop through each folder. It uses the following expression append the current Unix timestamp onto the end of the file name:
 
+    outputFileName = f"{outputFileName} {time.time():.0f}
 
+---
 
+**btnAutoSort()**
 
+The auto sorter will user regex to try and recognise specific patterns in JLR reports. A file containing **BB** for example is likely to be a VT-01 report. VT-07 reports have no way of being sorted.
 
-
-
-
-
-
-
-
-
-
-
-
-**Example:** **
-
-
-
-
-
+*Anything unsorted is added to the Usorted PDFs folder*
