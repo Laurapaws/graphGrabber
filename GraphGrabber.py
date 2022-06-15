@@ -1,29 +1,38 @@
+# GraphGrabber v1.0 - Laura Moore 2022
+# A tool for manipulating specific PDF reports into a specific PowerPoint format
+# See https://github.com/Laurapaws/graphGrabber
+
+
 import glob
 import io
 import logging
 import sys
 import os
-import platform
-import re
-import shutil
-import subprocess
 import time
 
-import tkinter as tk
-from tkinter import filedialog, simpledialog, ttk, Button, Label, Listbox
+import platform # Only used to check OS to avoid Win-specific os.startfile
+import subprocess
+import re # Used in auto import and sort of PDF files
+import shutil # Only used for copying some files
 
-import fitz
-import PIL.Image
-import Pmw
-from pptx import Presentation
+import tkinter as tk
+from tkinter import filedialog, simpledialog, ttk, Button, Label, Listbox, ANCHOR
+
+import fitz # A PyMuPDF module used here to convert PDF -> PNG
+import PIL.Image # For image manipulation
+import Pmw # Only used for the Balloon tooltip functionality
+
+from pptx import Presentation #python-pptx is used for manipulating PowerPoints
 from pptx.util import Pt
 
-logging.basicConfig(
-    filename='GG.log',
-    format='%(asctime)s %(message)s',
-    encoding='utf-8',
-    level=logging.INFO)
+# Set up logging
+root_logger= logging.getLogger()
+root_logger.setLevel(logging.INFO)
+handler = logging.FileHandler('GG.log', 'a', 'utf-8')
+handler.setFormatter(logging.Formatter('%(asctime)s | %(name)s | %(message)s'))
+root_logger.addHandler(handler)
 
+# All three dictionaries are hardcoded for specific use-cases in EMC Reporting
 posDict = {
     # Define coordinates for positioning. Format is test name then test type. e.g. a VT-07 test with a mediumwave plot
     # Tuple Order: Left , Top, Width, Height
@@ -84,17 +93,15 @@ croppedImages = []
 rejectedList = []
 slideCounter = 0
 listCounter = 0
-
 cwd = os.getcwd()
 
 currentTime = time.time()
-logging.info(
-    '************************** Starting GraphGrabber! **************************')
+logging.info('************************** Starting GraphGrabber! **************************')
 
 
 def searchReplace(search_str, repl_str, input, output):
     # Attempts to search and replace on the entire file. Likely needs rewriting to be more robust and not need a template
-    # From Stackoverflow which explains the change in style
+    # From Stackoverflow
     prs = Presentation(input)
     for slide in prs.slides:
         for shape in slide.shapes:
@@ -109,6 +116,7 @@ def searchReplace(search_str, repl_str, input, output):
 
 
 def extractImages(PDFName, imageFolder):
+    # Converts each page of a PDF to an image
     fileName = imageFolder + "/" + PDFName
     doc = fitz.open(fileName)
     zoom = 2  # to increase the resolution
@@ -117,7 +125,7 @@ def extractImages(PDFName, imageFolder):
     for pageNo in range(noOfPages):
         page = doc.load_page(pageNo)  # number of page
         pix = page.get_pixmap(matrix=mat)
-        extractedImages.append(pix)
+        extractedImages.append(pix) # List to store images for current job
         logging.info(
             "Converting " +
             fileName +
@@ -127,24 +135,25 @@ def extractImages(PDFName, imageFolder):
 
 
 def cropGraph(targetImg, cropTuple, imName):
+    # Crops a specific area of each image according the pixel coordinates defined in the cropTuple
     targetPIL = targetImg.tobytes("PNG")
-    im = PIL.Image.open(io.BytesIO(targetPIL))
-    im1 = im.crop(box=cropTuple)
-    croppedImages.append(im1)
+    im = PIL.Image.open(io.BytesIO(targetPIL)) #BytesIO used to mimic a real file since PIL gets unhappy otherwise
+    im1 = im.crop(box=cropTuple) # Crop the newly opened image
+    croppedImages.append(im1) # List to store cropped images for current job
     logging.info(imName + " cropped")
 
 
 def insertImage(oldFileName, newFileName, img, positionTuple, slideNumber):
     # Inserts an image from the croppedImages array into slideNumber using a
     # position from posDict
-    prs = Presentation(oldFileName)
-    slide = prs.slides[slideNumber]
-    left = positionTuple[0]
+    prs = Presentation(oldFileName) #oldFileName and newDeckName are distinct to not overwrite the template
+    slide = prs.slides[slideNumber] # Currently working on this slide
+    left = positionTuple[0] # Position in the slide where this will be inserted
     top = positionTuple[1]
-    width = positionTuple[2]
+    width = positionTuple[2] # Intended size in inches(?) for the image
     height = positionTuple[3]
-    temp = io.BytesIO()
-    img.save(temp, "PNG")
+    temp = io.BytesIO() # More pretending to be a real file
+    img.save(temp, "PNG") # Save the image with a PNG format. JPG quality isn't good enough
     slide.shapes.add_picture(temp, left, top, width, height)
     prs.save(newFileName)
     logging.info(
@@ -834,19 +843,6 @@ progessBar = ttk.Progressbar(
 progessBar.place(x=10, y=105)
 
 
-# # File List Title
-# Label(
-#     root,
-#     text="File List",
-#     bg="#C1CDCD",
-#     font=(
-#         "Helvetica",
-#         14,
-#         "normal")).place(
-#             x=375,
-#     y=15)
-
-
 # File List
 fileList = Listbox(
     root, bg="#bdc3c7", font=("Helvetica", 10, "normal"), width=75, height=41
@@ -875,5 +871,4 @@ checkFolders()
 root.mainloop()
 
 
-logging.info(
-    "************************** Window Closing... **************************")
+logging.info("************************** Window Closing... **************************")

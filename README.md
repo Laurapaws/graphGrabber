@@ -20,6 +20,8 @@ Currently supports VT-01 (2 images), VT-07 (7 images), VT-12 (2 or 4 images), VT
 
 Contains a copy of Pmw.py due to Python Megawidgets failing to import properly.
 
+When running from sour
+
 **Tkinter** is used to build the GUI, **PyMuPDF** handles PDF documents alongside **Pillow**, and **python-pptx** is used for operations on the PowerPoint files.
 
 Builds with Pyinstaller and runs in Python 3.8.5 on:\
@@ -61,6 +63,10 @@ Creating a new deck is simple, but can break if you give it the wrong files. Her
 Using [pyinstaller](https://pyinstaller.org/en/stable/usage.html) we can easily generate from source:
 
     pyinstaller --clean -F -y -n "GraphGrabber" --add-data="emptyDeck.pptx;." GraphGrabber.py
+
+Running from source may require manual installation of python-pptx and PyMuPDF:
+
+    pip install --upgrade python-pptx PyMuPDF
 
 ---
 
