@@ -7,11 +7,10 @@ import platform
 import re
 import shutil
 import subprocess
-import tkinter as tk
 import time
-from io import BytesIO
-from tkinter import *
-from tkinter import filedialog, ttk, simpledialog, messagebox
+
+import tkinter as tk
+from tkinter import filedialog, simpledialog, ttk, Button, Label, Listbox
 
 import fitz
 import PIL.Image
@@ -144,7 +143,7 @@ def insertImage(oldFileName, newFileName, img, positionTuple, slideNumber):
     top = positionTuple[1]
     width = positionTuple[2]
     height = positionTuple[3]
-    temp = BytesIO()
+    temp = io.BytesIO()
     img.save(temp, "PNG")
     slide.shapes.add_picture(temp, left, top, width, height)
     prs.save(newFileName)
@@ -405,7 +404,7 @@ def loopFolder(folderName, deckName, reportFunction):
     global listCounter
     listCounter = listCounter + 1
     for file in os.listdir(directory):
-        if file.endswith(".Pdf") or file.endswith(".pdf"):
+        if file.lower().endswith(".pdf"):
             statusMessage = file + " | No Status"
             logging.info(
                 "Working on slide " +
@@ -592,7 +591,7 @@ def btnCheckFiles():
         listCounter = listCounter + 1
         localCounter = 0
         for file in os.listdir(dir):
-            if file.endswith(".Pdf") or file.endswith(".pdf"):
+            if file.lower().endswith(".pdf"):
                 fileList.insert(listCounter, file)
                 localCounter = localCounter + 1
                 listCounter = listCounter + 1
@@ -661,7 +660,7 @@ def btnAutoSort():
         dir = filedialog.askdirectory()  # Returns opened path as str
 
         for file in os.listdir(dir):
-            if file.endswith(".Pdf") or file.endswith(".pdf"):
+            if file.lower().endswith(".pdf"):
                 if re.search('REESS', file, flags=re.I):
                     regexCopy(file, dir, 'VT-01 3m')
                 elif re.search('NB', file, flags=re.I):
@@ -705,7 +704,7 @@ def getphaseListValue():
     return itemSelected
 
 
-root = Tk()
+root = tk.Tk()
 
 
 # This is the section of code which creates the main window
@@ -713,31 +712,9 @@ root.geometry("550x850")
 root.configure(background="#34495e")
 root.title("GraphGrabber v1")
 
+
+
 Pmw.initialise(root)
-
-# # Init PP Button
-# Button(
-#     root,
-#     text="DEBUG: INIT PP",
-#     bg="#F0FFFF",
-#     font=("courier", 14, "normal"),
-#     command=btnInitialisePowerPoint,
-# ).place(x=39, y=40)
-
-# # Init Folders Button
-# wgtInitFolders = Button(
-#     root,
-#     text="DEBUG: INIT FOLDERS",
-#     bg="#F0FFFF",
-#     font=("courier", 14, "normal"),
-#     command=btnInitialiseFolders,
-# )
-# wgtInitFolders.place(x=39, y=86)
-
-# tipName = Pmw.Balloon(root)
-# tipName.bind(wgtInitFolders,'''Will create a folder structure required for use by GraphGrabber in the current working directory
-# Do not rename these folders
-# Will not create them if they already exist'''')
 
 # Clear Folders Button
 wgtClearFolders = Button(
@@ -766,6 +743,7 @@ Label(
     justify="left",
     font=("courier", 10, "normal"),
 ).place(x=10, y=64)
+
 
 # Go to Directory Button
 wgtVisitFolders = Button(
