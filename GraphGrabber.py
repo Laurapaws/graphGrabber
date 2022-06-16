@@ -726,8 +726,8 @@ root = tk.Tk()
 # Create the main window
 root.geometry("550x850")
 root.configure(background="#34495e")
-root.title("GraphGrabber v1")
-root.iconbitmap('ICOLogo.ico')
+root.title("GraphGrabber Beta 4")
+#root.iconbitmap('ICOLogo.ico')
 
 # Initialise Python Megawidgets
 Pmw.initialise(root)
