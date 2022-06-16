@@ -9,13 +9,15 @@
 
 ## Description
 
-<img style="float: right; width:275px;" src="https://i.imgur.com/HxBQBFC.png">
+
 
 GraphGrabber is a JLR tool which formats PDF reports into a PowerPoint style. It does this by converting PDFs to images then cropping them. The resultant image is then added to a slide alongside other images found in the PDF.
 
 The report definitions are hardcoded for now and will remain that way unless there is a user need to build new functions for cropping and placing images.
 
 Currently supports VT-01 (2 images), VT-07 (7 images), VT-12 (2 or 4 images), VT-15 (3 or 6 images)
+
+<img style="float: right; width:275px;" src="https://i.imgur.com/HxBQBFC.png">
 
 Contains a copy of Pmw.py due to Python Megawidgets failing to import properly.
 
