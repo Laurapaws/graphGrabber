@@ -1,3 +1,6 @@
+> Just wanted to add a little comment that I know this tool is terribly written :D
+> It worked at the time and was my first foray into building an actual python tool. I pretty much bruteforced things while learning new concepts.
+     
      _____                 _     _____           _     _               
     |  __ \               | |   |  __ \         | |   | |              
     | |  \/_ __ __ _ _ __ | |__ | |  \/_ __ __ _| |__ | |__   ___ _ __ 
